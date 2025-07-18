@@ -1,0 +1,243 @@
+.file-upload{
+    width: 100%;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+
+.drop-zone {
+  border: 2px dashed #cbd5e0;
+  background-color: #f9fafb;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.drop-zone.drag-over {
+  border-color: #3182ce;
+  background-color: #edf2f7;
+}
+
+
+.upload-icon{
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 1rem;
+    color: #6c757d
+}
+
+.file-input {
+    display: none;
+}
+
+.select-button{
+    display: inline-block;
+    margin-top:1rem;
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size:1rem;
+}
+
+.select-button:hover {
+    background-color: #0056b3;
+}
+
+.status-message {
+    margin-top: 1rem;
+    text-align:center;
+}
+
+.success {
+    color: #28a745;
+}
+
+.error{
+    color: #dc3545
+}
+
+.preview-table{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top:2rem;
+}
+
+.preview-table th, .preview-table td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+}
+.preview-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+.preview-table tr:nth-child(even){
+    background-color: #f9f9f9;
+}
+.upload-container {
+    padding: 2rem;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.upload-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+.upload-header p {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+.upload-grid {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.file-upload, .upload-info {
+    flex: 1;
+    min-width: 300px;
+}
+
+.upload-info {
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.upload-info h2 {
+    margin-bottom: 0.5rem;
+}
+
+.upload-info ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.upload-info li {
+    padding: 0.25rem 0;
+}
+
+.tip-box {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+}
+
+.preview-container {
+    margin-top: 2rem;
+    background-color: #fff;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.preview-container h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #1a202c;
+}
+
+.preview-container p {
+    font-size: 0.95rem;
+    color: #718096;
+    margin-bottom: 1.25rem;
+}
+
+.preview-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.95rem;
+    margin-top: 1rem;
+}
+
+.preview-table th {
+    background-color: #f9fafb;
+    color: #4a5568;
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.preview-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #edf2f7;
+    color: #2d3748;
+    vertical-align: top;
+    max-width: 250px;
+    word-wrap: break-word;
+}
+
+.preview-table tr:hover {
+    background-color: #f7fafc;
+}
+
+.proceed-button {
+    margin-top: 1.5rem;
+    float: right;
+    background-color: #1a202c;
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    border: none;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.proceed-button:hover {
+    background-color: #2d3748;
+}
+.upload-subtext {
+  color: #6c757d;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.format-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.format-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.format-desc {
+  font-size: 0.9rem;
+  color: #333;
+  margin-top: 0.2rem;
+}
+
+.format-card.tip {
+  align-items: flex-start;
+}
+
+.format-card.tip .format-icon {
+  width: 24px;
+  height: 24px;
+  margin-top: 4px;
+}

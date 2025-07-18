@@ -1,0 +1,82 @@
+.sidebar {
+  background-color: #f9fafc;
+  height: 100vh;
+  width: 240px;
+  padding: 20px 16px;
+  box-shadow: 1px 0 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-family: 'Inter', sans-serif;
+}
+
+.sidebar-logo {
+  width: 100%;
+  padding: 8px 0 16px;
+  text-align: center;
+}
+
+.logo-img {
+  width: 120px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.logo-img:hover {
+  transform: scale(1.04);
+}
+
+.nav-links {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: #333;
+  padding: 14px 12px;         /* Increased vertical padding */
+  margin-bottom: 10px;        /* Space between items */
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+
+.nav-item:hover {
+  background-color: #eef3ff;
+  color: #0047ab;
+}
+
+.nav-item.active {
+  background-color: #e0ebff;
+  font-weight: 600;
+  color: #003e91;
+}
+
+.sidebar-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  color: #202020;
+}
+
+.sidebar-sub {
+  font-size: 13px;
+  color: #7a7a7a;
+  margin-bottom: 16px;
+}
+.product-name {
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.5rem;
+  font-family: 'Poppins', 'Segoe UI', 'Roboto', sans-serif;
+  color: #2c3e50;
+  margin-top: 0.3rem;
+  letter-spacing: 1px;
+}

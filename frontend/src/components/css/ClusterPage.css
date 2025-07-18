@@ -1,0 +1,273 @@
+.cluster-container {
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #fff;
+}
+
+.cluster-container h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 0.25rem;
+}
+
+.cluster-container p {
+  font-size: 1rem;
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+}
+
+.cluster-container select {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e0;
+  background-color: #f7fafc;
+  margin-bottom: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.cluster-container select:focus {
+  border-color: #3182ce;
+}
+
+.cluster-container button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  background-color: #1a202c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.cluster-container button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.cluster-container button:hover:enabled {
+  background-color: #2d3748;
+}
+
+.status-message {
+  margin-top: 1rem;
+  font-weight: 500;
+  color: #2b6cb0;
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 2rem;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.preview-table th {
+  background-color: #f9fafb;
+  color: #4a5568;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.preview-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #edf2f7;
+  color: #2d3748;
+  vertical-align: top;
+  max-width: 250px;
+  word-wrap: break-word;
+}
+
+.preview-table tr:hover {
+  background-color: #f7fafc;
+}
+
+.download-btn,
+.excel-download-btn {
+  margin-top: 1.5rem;
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.download-btn:hover,
+.excel-download-btn:hover {
+  background-color: #0056b3;
+}
+
+.excel-notification {
+  margin-top: 1.5rem;
+  background-color: #e6ffed;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid #38a169;
+  border-radius: 6px;
+  color: #22543d;
+  font-weight: 500;
+}
+.cluster-card {
+  background-color: #ffffff;
+  padding: 2rem;
+  margin: 2rem auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  max-width: 700px;
+  border: 1px solid #e2e8f0;
+}
+
+.cluster-card h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.cluster-card p {
+  margin-bottom: 1.5rem;
+  color: #4a5568;
+}
+
+.cluster-card select {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background-color: #f7fafc;
+  margin-bottom: 1.5rem;
+}
+
+.cluster-card button {
+  padding: 0.6rem 1.2rem;
+  background-color: #2b6cb0;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.cluster-card button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.cluster-card button:hover:enabled {
+  background-color: #2c5282;
+}
+
+.preview-section {
+  margin-top: 2rem;
+}
+.cluster-card {
+  background-color: #ffffff;
+  padding: 2rem;
+  margin: 2rem auto;
+  border-radius: 12px;
+  max-width: 1200px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.preview-heading {
+  margin-top: 2rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 1rem;
+  border-radius: 8px;
+}
+
+.proceed-section {
+  margin-top: 2rem;
+  text-align: right;
+}
+
+.back-btn {
+  background-color: #4a5568;
+}
+
+.proceed-btn {
+  background-color: #38a169;
+  color: white;
+}
+.info-card {
+  background-color: #f9fafb;
+  border: 1px solid #e2e8f0;
+  padding: 1.5rem 2rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  max-width: 100%;
+}
+
+.info-card h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.info-card p {
+  font-size: 1rem;
+  color: #4a5568;
+  margin-bottom: 1rem;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #3182ce;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.95rem;
+}
+
+.toggle-btn:hover {
+  text-decoration: underline;
+}
+
+.info-details {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+  color: #4a5568;
+}
+
+.info-details li {
+  margin-bottom: 0.5rem;
+}
+
+.why-it-matters {
+  font-size: 1rem;
+  color: #2d3748;
+  margin-top: 1rem;
+  background-color: #fffbe6;
+  padding: 1rem;
+  border-left: 4px solid #d69e2e;
+  border-radius: 6px;
+}

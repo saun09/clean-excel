@@ -1,0 +1,42 @@
+print("importing flask")
+from flask import Flask
+from flask_cors import CORS
+from flask_session import Session
+
+from settings import Config
+
+print("importing upload_bp")
+from routes.upload_routes import upload_bp
+
+print("importing clustering_bp")
+from routes.clustering_routes import clustering_bp
+
+print("importing export_bp")
+from routes.export_routes import export_bp
+
+print("importing filter_bp")
+from routes.filter_routes import filter_bp
+
+print("importing forecast_bp")
+from routes.forecast_routes import forecast_bp
+
+print("importing cosine_bp")
+from routes.cosine_routes import cosine_bp
+
+app = Flask(__name__)
+app.config.from_object(Config)
+Config.init_app(app)
+print("Config loaded")
+
+CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+Session(app)
+
+app.register_blueprint(upload_bp)
+app.register_blueprint(clustering_bp)
+app.register_blueprint(export_bp)
+app.register_blueprint(filter_bp)
+app.register_blueprint(forecast_bp)
+app.register_blueprint(cosine_bp)
+
+if __name__ == '__main__':
+    app.run(debug=True)
