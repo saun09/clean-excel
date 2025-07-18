@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './css/CosineSimilarity.css';
-import { useLocation } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom'; // ✅ REQUIRED for navigation
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const CosineClusterImporterName = () => {
   const location = useLocation();
@@ -16,6 +15,7 @@ const CosineClusterImporterName = () => {
   const [downloadLink, setDownloadLink] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
   const navigate = useNavigate();
+
   const handleRunClustering = async () => {
     setLoading(true);
     setError('');
@@ -56,34 +56,44 @@ const CosineClusterImporterName = () => {
   if (!cleanedFilename) {
     return <div className="cosine-similarity-container">⚠️ No cleaned file found. Please upload and clean a file first.</div>;
   }
-
-  return (
+ return (
     <div className="cosine-similarity-container">
-      <h2>Cluster: Item Description</h2>
-      <p>Clustering using Cosine Similarity on the <b>Item_Description</b> column.</p>
-
-      <div className="clustering-controls">
-        <label>
-          Similarity Threshold:
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            max="1"
-            value={threshold}
-            onChange={(e) => setThreshold(parseFloat(e.target.value))}
-          />
-        </label>
-
-        <button onClick={handleRunClustering} disabled={loading}>
-          {loading ? "Clustering..." : "Run Clustering"}
-        </button>
+      <div className="header-section">
+        <h2>Cosine Similarity Clustering-IMPORTER NAME</h2>
+        <p>Apply advanced clustering on text columns using TF-IDF + Cosine Similarity to find similar entries.</p>
       </div>
+
+          <div className="clustering-controls">
+      <div className="control-group">
+        <label className="control-label">Similarity Threshold</label>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          max="1"
+          value={threshold}
+          onChange={(e) => setThreshold(parseFloat(e.target.value))}
+          className="control-input"
+        />
+      </div>
+      <button onClick={handleRunClustering} disabled={loading} className="run-button">
+        {loading ? (
+          <span className="loading-text">
+            <span className="spinner"></span> Clustering...
+          </span>
+        ) : (
+          "Run Cosine Clustering"
+        )}
+      </button>
+    </div>
+
 
       {error && <div className="error-message">{error}</div>}
 
       {clusteredData.length > 0 && (
         <>
+        <div className = "results-section">
+          <div className ="clustered-preview">
           <h3>Clustered Preview</h3>
           <table className="preview-table">
             <thead>
@@ -99,36 +109,71 @@ const CosineClusterImporterName = () => {
               ))}
             </tbody>
           </table>
+          </div>
+          </div>
 
-          {suggestions.length > 0 && (
-            <div className="suggestions">
-              <h3>Suggested Replacements</h3>
-              {suggestions.map((sug, index) => (
-                <div key={index}>
-                  Replace Row {sug.replace.row} ("{sug.replace.original}") with Row {sug.replace.suggested_with_row} ("{sug.replace.suggested_value}") – Similarity: {(sug.replace.similarity * 100).toFixed(1)}%
-                  <button onClick={() => handleAcceptSuggestion(sug.replace)}>Accept</button>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="suggestions-section">
+  <h3>Suggested Replacements</h3>
+  <div className="suggestions-table-container">
+    <table className="suggestions-table">
+      <thead>
+        <tr>
+          <th>Row</th>
+          <th>Current Value</th>
+          <th>Suggested Value</th>
+          <th>Reference Row</th>
+          <th>Similarity</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {suggestions.map((sug, index) => (
+          <tr key={`${sug.replace.row}-${sug.replace.suggested_with_row}`} className="suggestion-row">
+            <td className="row-number">{sug.replace.row}</td>
+            <td className="current-value">
+              <span className="value-text">{sug.replace.original}</span>
+            </td>
+            <td className="suggested-value">
+              <span className="value-text">{sug.replace.suggested_value}</span>
+            </td>
+            <td className="reference-row">{sug.replace.suggested_with_row}</td>
+            <td className="similarity-score">
+              <span className="similarity-badge">{(sug.replace.similarity * 100).toFixed(1)}%</span>
+            </td>
+            <td className="action-cell">
+              <button onClick={() => handleAcceptSuggestion(sug.replace)} className="accept-button">
+                ✓ Accept
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
 
-          {downloadLink && (
-            <a className="download-link" href={downloadLink} download>
-              ⬇ Download Clustered CSV
-            </a>
-          )}
-          <div style={{ marginTop: "2rem", display: "flex", justifyContent: "space-between" }}>
-        <button onClick={() => navigate('/cluster/item-description')}>
-          ← Back to Item Description
-        </button>
-        <button onClick={() => navigate('/cluster/supplier-name')}>
-          Next → Supplier Name
-        </button>
-      </div>
+
+          <div className="download-section">
+  {downloadLink && (
+    <a className="download-link primary" href={downloadLink} download>
+      Download Clustered CSV
+    </a>
+  )}
+</div>
+
+
+          {/* Navigation Buttons */}
+      <div style={{ marginTop: "2rem", display: "flex", justifyContent: "flex-end" }}>
+  <button onClick={() => navigate('/cluster/supplier-name')}>
+    Next → Importer Name
+  </button>
+</div>
+
         </>
       )}
     </div>
   );
 };
+
 
 export default CosineClusterImporterName;

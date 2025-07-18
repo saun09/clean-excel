@@ -61,7 +61,7 @@ const CosineClusterItemDescription = () => {
   return (
     <div className="cosine-similarity-container">
       <div className="header-section">
-        <h2>Cosine Similarity Clustering</h2>
+        <h2>Cosine Similarity Clustering-ITEM DESCRIPTION</h2>
         <p>Apply advanced clustering on text columns using TF-IDF + Cosine Similarity to find similar entries.</p>
       </div>
 

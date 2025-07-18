@@ -77,33 +77,45 @@ const CosineClusterSupplierName = () => {
   };
 
 
+
   return (
     <div className="cosine-similarity-container">
-      <h2>Cluster: Supplier Name</h2>
-      <p>Clustering using Cosine Similarity on the <b>Supplier Name</b> column.</p>
-
-      <div className="clustering-controls">
-        <label>
-          Similarity Threshold:
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            max="1"
-            value={threshold}
-            onChange={(e) => setThreshold(parseFloat(e.target.value))}
-          />
-        </label>
-
-        <button onClick={handleRunClustering} disabled={loading}>
-          {loading ? "Clustering..." : "Run Clustering"}
-        </button>
+      <div className="header-section">
+        <h2>Cosine Similarity Clustering-SUPPLIER NAME</h2>
+        <p>Apply advanced clustering on text columns using TF-IDF + Cosine Similarity to find similar entries.</p>
       </div>
+
+          <div className="clustering-controls">
+      <div className="control-group">
+        <label className="control-label">Similarity Threshold</label>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          max="1"
+          value={threshold}
+          onChange={(e) => setThreshold(parseFloat(e.target.value))}
+          className="control-input"
+        />
+      </div>
+      <button onClick={handleRunClustering} disabled={loading} className="run-button">
+        {loading ? (
+          <span className="loading-text">
+            <span className="spinner"></span> Clustering...
+          </span>
+        ) : (
+          "Run Cosine Clustering"
+        )}
+      </button>
+    </div>
+
 
       {error && <div className="error-message">{error}</div>}
 
       {clusteredData.length > 0 && (
         <>
+        <div className = "results-section">
+          <div className ="clustered-preview">
           <h3>Clustered Preview</h3>
           <table className="preview-table">
             <thead>
@@ -119,20 +131,53 @@ const CosineClusterSupplierName = () => {
               ))}
             </tbody>
           </table>
+          </div>
+          </div>
 
-          {suggestions.length > 0 && (
-            <div className="suggestions">
-              <h3>Suggested Replacements</h3>
-              {suggestions.map((sug, index) => (
-                <div key={index}>
-                  Replace Row {sug.replace.row} ("{sug.replace.original}") with Row {sug.replace.suggested_with_row} ("{sug.replace.suggested_value}") – Similarity: {(sug.replace.similarity * 100).toFixed(1)}%
-                  <button onClick={() => handleAcceptSuggestion(sug.replace)}>Accept</button>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="suggestions-section">
+  <h3>Suggested Replacements</h3>
+  <div className="suggestions-table-container">
+    <table className="suggestions-table">
+      <thead>
+        <tr>
+          <th>Row</th>
+          <th>Current Value</th>
+          <th>Suggested Value</th>
+          <th>Reference Row</th>
+          <th>Similarity</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {suggestions.map((sug, index) => (
+          <tr key={`${sug.replace.row}-${sug.replace.suggested_with_row}`} className="suggestion-row">
+            <td className="row-number">{sug.replace.row}</td>
+            <td className="current-value">
+              <span className="value-text">{sug.replace.original}</span>
+            </td>
+            <td className="suggested-value">
+              <span className="value-text">{sug.replace.suggested_value}</span>
+            </td>
+            <td className="reference-row">{sug.replace.suggested_with_row}</td>
+            <td className="similarity-score">
+              <span className="similarity-badge">{(sug.replace.similarity * 100).toFixed(1)}%</span>
+            </td>
+            <td className="action-cell">
+              <button onClick={() => handleAcceptSuggestion(sug.replace)} className="accept-button">
+                ✓ Accept
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
 
-          {downloadLink && (
+
+
+        
+  {downloadLink && (
             <a className="download-link" href={downloadLink} download>
               ⬇ Download Clustered CSV
             </a>
@@ -152,10 +197,10 @@ const CosineClusterSupplierName = () => {
 
         </>
       )}
-
-
     </div>
   );
 };
 
+
 export default CosineClusterSupplierName;
+
