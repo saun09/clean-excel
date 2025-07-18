@@ -12,97 +12,138 @@ cosine_bp = Blueprint('cosine', __name__ , url_prefix = '/api')
 @cosine_bp.route('/cosine_cluster', methods=['POST', 'OPTIONS'])
 def cluster_cosine():
     if request.method == 'OPTIONS':
-        # 🟢 Respond OK to preflight request
+        # Handle preflight request
         return '', 200
 
     data = request.get_json()
-    filename=data.get('filename')
+    filename = data.get('filename')
     column = data.get('column')
     threshold = float(data.get('threshold', 0.8))
 
     if not column or not filename:
-        return jsonify({'error': 'Column name is required'}), 400
+        return jsonify({'error': 'Column name and filename are required'}), 400
 
     try:
+        print("🔍 Starting cosine clustering process")
+        print(f"📊 Column: {column}, Threshold: {threshold}")
+        print(f"📁 Filename: {filename}")
         
-        print("🔍 Checking session in cosine_cluster")
-        print("🔑 Session keys:", list(session.keys()))
-       # df_cleaned = get_df_from_session("cleaned_df")
-
-       # """ if df_cleaned is None:
-       #     print("❌ No df found in session under 'cleaned_df'")
-       # else:
-       #     print("✅ Retrieved df from session") """
+        # Define progressive clustering filename
+        progressive_filename = f"progressive_clustered_{filename}"
+        progressive_file_path = os.path.join(app.config['UPLOAD_FOLDER'], progressive_filename)
         
-     # """   df_cleaned = get_df_from_session("cleaned_df")
+        # Check if progressive clustering file exists (for subsequent clustering steps)
+        if os.path.exists(progressive_file_path):
+            print("✅ Loading existing progressive clustering file")
+            df_cleaned = pd.read_csv(progressive_file_path)
+            print(f"📥 Loaded progressive file shape: {df_cleaned.shape}")
+        else:
+            # First clustering step - load original cleaned file
+            print("🆕 First clustering step - loading original cleaned file")
+            cleaned_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            
+            if not os.path.exists(cleaned_file_path):
+                return jsonify({'error': f'Cleaned file not found: {filename}'}), 404
+            
+            df_cleaned = pd.read_csv(cleaned_file_path)
+            print(f"📥 Loaded original file shape: {df_cleaned.shape}")
 
-      #  if df_cleaned is None:
-       #     print("❌ No df in session, trying to load from temp file")
-       #     temp_file_path = os.path.join(app.config['UPLOAD_FOLDER'], "temp_cleaned.csv")
-        #    if os.path.exists(temp_file_path):
-         #       df_cleaned = pd.read_csv(temp_file_path)
-         #       print("✅ Loaded df from temp file")
-         #   else:
-         #       return jsonify({'error': 'Data not found in session or temp file'}), 500"""
-        cleaned_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        print(f"🧾 Available columns: {list(df_cleaned.columns)}")
+        print(f"📄 Sample values in {column}: {df_cleaned[column].dropna().head(5).tolist()}")
 
-        if not os.path.exists(cleaned_file_path):
-            return jsonify({'error': f'Cleaned file not found: {filename}'}), 404
-
-        df_cleaned = pd.read_csv(cleaned_file_path)
-        print("📥 Input DF shape:", df_cleaned.shape)
-        print("📄 Sample values:", df_cleaned[column].dropna().head(5).tolist())
-
-
-        print("📊 Column from frontend:", column)
-        print("🧾 Available columns:", list(df_cleaned.columns))
-
+        # Validate column exists
         if column not in df_cleaned.columns:
             return jsonify({'error': f'Column {column} not found in data'}), 400
 
-        df_cosine_sim = cluster_column(df_cleaned[[column]].copy(), column, threshold)
+        # Perform clustering on the specified column
+        print(f"🔄 Starting clustering for column: {column}")
+        df_clustered = cluster_column(df_cleaned.copy(), column, threshold)
+        print(f"✅ Clustering completed. Result shape: {df_clustered.shape}")
 
-      # """  cosine_filename = f"cosine_clustered_{column.lower()}.csv"
-       # cosine_file_path = os.path.join(app.config['UPLOAD_FOLDER'], cosine_filename)
-       # df_cosine_sim.to_csv(cosine_file_path, index=False) """
-        cosine_filename = f"cosine_clustered_{column.lower()}.csv"
+        # Save the progressively updated file (contains all clustering results so far)
+        df_clustered.to_csv(progressive_file_path, index=False)
+        print(f"💾 Progressive file saved: {progressive_file_path}")
+
+        # Save column-specific file for download/preview
+        cosine_filename = f"cosine_clustered_{column.lower().replace(' ', '_')}.csv"
         cosine_file_path = os.path.join(app.config['UPLOAD_FOLDER'], cosine_filename)
-        df_cosine_sim.to_csv(cosine_file_path, index=False)
-  # 💥 Save updated original df
-        print("✅ Clustered CSV saved at:", cosine_file_path)
+        df_clustered.to_csv(cosine_file_path, index=False)
+        print(f"💾 Column-specific file saved: {cosine_file_path}")
 
+        # Create highlighted Excel file for visualization
         highlighted_excel_path = cosine_file_path.replace('.csv', '.xlsx')
-        original_df = pd.read_csv(cleaned_file_path) 
-        highlight_changes_in_excel(original_df, df_cleaned, column, highlighted_excel_path)
+        try:
+            # Load original data for comparison
+            original_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            if os.path.exists(original_file_path):
+                original_df = pd.read_csv(original_file_path)
+                highlight_changes_in_excel(original_df, df_clustered, column, highlighted_excel_path)
+                print(f"📊 Excel file with highlights created: {highlighted_excel_path}")
+            else:
+                print("⚠️ Original file not found for highlighting")
+        except Exception as e:
+            print(f"⚠️ Warning: Could not create highlighted Excel file: {str(e)}")
 
+        # Generate replacement suggestions
+        print("🔍 Generating replacement suggestions...")
+        try:
+            suggestions = get_replacement_suggestions(df_cleaned, column, threshold)
+            print(f"✅ Generated {len(suggestions)} suggestions")
+        except Exception as e:
+            print(f"⚠️ Warning: Could not generate suggestions: {str(e)}")
+            suggestions = []
+
+        # Prepare response data
+        clustered_preview = df_clustered.head(10).fillna('').to_dict(orient='records')
         
-        #suggestions = get_replacement_suggestions(df_cleaned[[column]].copy(), column, threshold)
-        suggestions = get_replacement_suggestions(df_cleaned, column, threshold)
-
-
-
-        return jsonify({
+        response_data = {
+            'success': True,
             'message': 'Data clustered successfully',
             'output_file': cosine_filename,
-            'message': 'Suggestions generated',
+            'progressive_file': progressive_filename,
+            'final_filename': progressive_filename,  # This is what FilterPage should use
             'replacement_suggestions': suggestions,
-            "final_filename": os.path.basename(cosine_filename),
+            'clustered_preview': clustered_preview,
+            'column_clustered': column,
+            'threshold_used': threshold,
+            'total_rows': len(df_clustered)
+        }
 
-            'excel_file': os.path.basename(highlighted_excel_path),
-            'clustered_preview': df_cosine_sim.head(10).fillna('').to_dict(orient='records')
-        })
+        # Add Excel file info if it exists
+        if os.path.exists(highlighted_excel_path):
+            response_data['excel_file'] = os.path.basename(highlighted_excel_path)
+
+        print("✅ Clustering process completed successfully")
+        return jsonify(response_data)
 
     except FileNotFoundError as e:
-        return jsonify({'error': f'File not found: {str(e)}'}), 404
+        error_msg = f'File not found: {str(e)}'
+        print(f"❌ FileNotFoundError: {error_msg}")
+        return jsonify({'error': error_msg}), 404
+    
+    except KeyError as e:
+        error_msg = f'Missing column in data: {str(e)}'
+        print(f"❌ KeyError: {error_msg}")
+        return jsonify({'error': error_msg}), 400
+    
+    except ValueError as e:
+        error_msg = f'Invalid threshold value: {str(e)}'
+        print(f"❌ ValueError: {error_msg}")
+        return jsonify({'error': error_msg}), 400
+    
     except Exception as e:
+        error_msg = f'Error clustering data: {str(e)}'
+        print(f"❌ Unexpected error: {error_msg}")
         import traceback
-        traceback.print_exc()  # 👈 add this to print actual error stack trace
+        traceback.print_exc()
+        return jsonify({'error': error_msg}), 500
 
-        return jsonify({'error': f'Error clustering data: {str(e)}'}), 500
 
-
-@cosine_bp.route('/apply_replacement', methods=['POST'])
+@cosine_bp.route('/apply_replacement', methods=['POST', 'OPTIONS'])
 def apply_replacement():
+    if request.method == 'OPTIONS':
+        # 🔥 This is critical for passing preflight
+        return '', 200
     data = request.get_json()
     filename = data.get('filename')
     column = data.get('column')
