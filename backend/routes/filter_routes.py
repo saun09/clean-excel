@@ -34,23 +34,17 @@ def load_filter_options():
             'item_descriptions': []
         }
 
-        # Populate trade types
-        if 'Trade_Type' in df.columns:
-            options['trade_types'] = sorted(df['Trade_Type'].dropna().unique().tolist())
+        # Populate trade types - using 'Type' column
+        if 'Type' in df.columns:
+            options['trade_types'] = sorted(df['Type'].dropna().unique().tolist())
 
-        # Populate importer cities (handle clustered column names)
-        importer_cols = ['Importer_City_State', 'Importer_City_State_cluster', 'Importer_Name', 'Importer_Name_cluster']
-        for col in importer_cols:
-            if col in df.columns:
-                options['importer_cities'] = sorted(df[col].dropna().unique().tolist())
-                break
+        # Populate importer cities - using 'Importer_City_State' column
+        if 'Importer_City_State' in df.columns:
+            options['importer_cities'] = sorted(df['Importer_City_State'].dropna().unique().tolist())
 
-        # Populate supplier countries (handle clustered column names)
-        supplier_cols = ['Country_of_Origin', 'Country_of_Origin_cluster', 'Supplier_Name', 'Supplier_Name_cluster']
-        for col in supplier_cols:
-            if col in df.columns:
-                options['supplier_countries'] = sorted(df[col].dropna().unique().tolist())
-                break
+        # Populate supplier countries - using 'Country_of_Origin' column
+        if 'Country_of_Origin' in df.columns:
+            options['supplier_countries'] = sorted(df['Country_of_Origin'].dropna().unique().tolist())
 
         # Populate numeric columns
         numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
@@ -58,35 +52,27 @@ def load_filter_options():
         numeric_cols = [col for col in numeric_cols if not col.lower().startswith('unnamed')]
         options['numeric_columns'] = numeric_cols
 
-        # Populate years
-        date_cols = ['Date', 'Date_of_Arrival', 'Year']
-        for col in date_cols:
-            if col in df.columns:
-                if col == 'Year':
-                    options['years'] = sorted(df[col].dropna().unique().tolist())
-                else:
-                    # Try to extract year from date columns
-                    try:
-                        df[col] = pd.to_datetime(df[col], errors='coerce')
-                        years = df[col].dt.year.dropna().unique().tolist()
-                        options['years'] = sorted(years)
-                    except:
-                        pass
-                break
+        # Populate years from 'Month' column
+        if 'Month' in df.columns:
+            try:
+                # Convert Month column to datetime and extract years
+                df['Month'] = pd.to_datetime(df['Month'], errors='coerce')
+                years = df['Month'].dt.year.dropna().unique().tolist()
+                options['years'] = sorted([int(year) for year in years])
+            except:
+                # Fallback to YEAR column if Month parsing fails
+                if 'YEAR' in df.columns:
+                    options['years'] = sorted(df['YEAR'].dropna().unique().tolist())
+        elif 'YEAR' in df.columns:
+            options['years'] = sorted(df['YEAR'].dropna().unique().tolist())
 
-        # Populate HS codes
-        hscode_cols = ['HS_Code', 'HSCode', 'HS_CODE']
-        for col in hscode_cols:
-            if col in df.columns:
-                options['hscodes'] = sorted(df[col].dropna().astype(str).unique().tolist())
-                break
+        # Populate HS codes - using 'CTH_HSCODE' column
+        if 'CTH_HSCODE' in df.columns:
+            options['hscodes'] = sorted(df['CTH_HSCODE'].dropna().astype(str).unique().tolist())
 
-        # Populate item descriptions (handle clustered column names)
-        item_cols = ['Item_Description', 'Item_Description_cluster', 'Product_Description', 'Product_Description_cluster']
-        for col in item_cols:
-            if col in df.columns:
-                options['item_descriptions'] = sorted(df[col].dropna().unique().tolist())
-                break
+        # Populate item descriptions - using 'Item_Description' column
+        if 'Item_Description' in df.columns:
+            options['item_descriptions'] = sorted(df['Item_Description'].dropna().unique().tolist())
 
         print(f"✅ Filter options loaded for {len(df)} records")
         print(f"Available columns: {df.columns.tolist()}")
@@ -118,51 +104,37 @@ def filter_data():
 
         # Apply filters
         if 'tradeType' in data and data['tradeType']:
-            if 'Trade_Type' in df.columns:
-                df = df[df['Trade_Type'].isin(data['tradeType'])]
+            if 'Type' in df.columns:
+                df = df[df['Type'].isin(data['tradeType'])]
 
         if 'importer' in data and data['importer']:
-            importer_cols = ['Importer_City_State', 'Importer_City_State_cluster', 'Importer_Name', 'Importer_Name_cluster']
-            for col in importer_cols:
-                if col in df.columns:
-                    df = df[df[col].isin(data['importer'])]
-                    break
+            if 'Importer_City_State' in df.columns:
+                df = df[df['Importer_City_State'].isin(data['importer'])]
 
         if 'supplier' in data and data['supplier']:
-            supplier_cols = ['Country_of_Origin', 'Country_of_Origin_cluster', 'Supplier_Name', 'Supplier_Name_cluster']
-            for col in supplier_cols:
-                if col in df.columns:
-                    df = df[df[col].isin(data['supplier'])]
-                    break
+            if 'Country_of_Origin' in df.columns:
+                df = df[df['Country_of_Origin'].isin(data['supplier'])]
 
         if 'years' in data and data['years']:
-            date_cols = ['Date', 'Date_of_Arrival', 'Year']
-            for col in date_cols:
-                if col in df.columns:
-                    if col == 'Year':
-                        df = df[df[col].isin(data['years'])]
-                    else:
-                        # Try to filter by year from date columns
-                        try:
-                            df[col] = pd.to_datetime(df[col], errors='coerce')
-                            df = df[df[col].dt.year.isin([int(y) for y in data['years']])]
-                        except:
-                            pass
-                    break
+            # Try to filter by year from Month column first
+            if 'Month' in df.columns:
+                try:
+                    df['Month'] = pd.to_datetime(df['Month'], errors='coerce')
+                    df = df[df['Month'].dt.year.isin([int(y) for y in data['years']])]
+                except:
+                    # Fallback to YEAR column
+                    if 'YEAR' in df.columns:
+                        df = df[df['YEAR'].isin([int(y) for y in data['years']])]
+            elif 'YEAR' in df.columns:
+                df = df[df['YEAR'].isin([int(y) for y in data['years']])]
 
         if 'hscode' in data and data['hscode']:
-            hscode_cols = ['HS_Code', 'HSCode', 'HS_CODE']
-            for col in hscode_cols:
-                if col in df.columns:
-                    df = df[df[col].astype(str).isin(data['hscode'])]
-                    break
+            if 'CTH_HSCODE' in df.columns:
+                df = df[df['CTH_HSCODE'].astype(str).isin(data['hscode'])]
 
         if 'item' in data and data['item']:
-            item_cols = ['Item_Description', 'Item_Description_cluster', 'Product_Description', 'Product_Description_cluster']
-            for col in item_cols:
-                if col in df.columns:
-                    df = df[df[col].isin(data['item'])]
-                    break
+            if 'Item_Description' in df.columns:
+                df = df[df['Item_Description'].isin(data['item'])]
 
         filtered_count = len(df)
         preview = df.head(20).replace({np.nan: None}).to_dict(orient='records')
@@ -199,50 +171,37 @@ def analyze_filtered_data():
 
         # Apply same filters as filter_data
         if 'tradeType' in data and data['tradeType']:
-            if 'Trade_Type' in df.columns:
-                df = df[df['Trade_Type'].isin(data['tradeType'])]
+            if 'Type' in df.columns:
+                df = df[df['Type'].isin(data['tradeType'])]
 
         if 'importer' in data and data['importer']:
-            importer_cols = ['Importer_City_State', 'Importer_City_State_cluster', 'Importer_Name', 'Importer_Name_cluster']
-            for col in importer_cols:
-                if col in df.columns:
-                    df = df[df[col].isin(data['importer'])]
-                    break
+            if 'Importer_City_State' in df.columns:
+                df = df[df['Importer_City_State'].isin(data['importer'])]
 
         if 'supplier' in data and data['supplier']:
-            supplier_cols = ['Country_of_Origin', 'Country_of_Origin_cluster', 'Supplier_Name', 'Supplier_Name_cluster']
-            for col in supplier_cols:
-                if col in df.columns:
-                    df = df[df[col].isin(data['supplier'])]
-                    break
+            if 'Country_of_Origin' in df.columns:
+                df = df[df['Country_of_Origin'].isin(data['supplier'])]
 
         if 'years' in data and data['years']:
-            date_cols = ['Date', 'Date_of_Arrival', 'Year']
-            for col in date_cols:
-                if col in df.columns:
-                    if col == 'Year':
-                        df = df[df[col].isin(data['years'])]
-                    else:
-                        try:
-                            df[col] = pd.to_datetime(df[col], errors='coerce')
-                            df = df[df[col].dt.year.isin([int(y) for y in data['years']])]
-                        except:
-                            pass
-                    break
+            # Try to filter by year from Month column first
+            if 'Month' in df.columns:
+                try:
+                    df['Month'] = pd.to_datetime(df['Month'], errors='coerce')
+                    df = df[df['Month'].dt.year.isin([int(y) for y in data['years']])]
+                except:
+                    # Fallback to YEAR column
+                    if 'YEAR' in df.columns:
+                        df = df[df['YEAR'].isin([int(y) for y in data['years']])]
+            elif 'YEAR' in df.columns:
+                df = df[df['YEAR'].isin([int(y) for y in data['years']])]
 
         if 'hscode' in data and data['hscode']:
-            hscode_cols = ['HS_Code', 'HSCode', 'HS_CODE']
-            for col in hscode_cols:
-                if col in df.columns:
-                    df = df[df[col].astype(str).isin(data['hscode'])]
-                    break
+            if 'CTH_HSCODE' in df.columns:
+                df = df[df['CTH_HSCODE'].astype(str).isin(data['hscode'])]
 
         if 'item' in data and data['item']:
-            item_cols = ['Item_Description', 'Item_Description_cluster', 'Product_Description', 'Product_Description_cluster']
-            for col in item_cols:
-                if col in df.columns:
-                    df = df[df[col].isin(data['item'])]
-                    break
+            if 'Item_Description' in df.columns:
+                df = df[df['Item_Description'].isin(data['item'])]
 
         if len(df) == 0:
             return jsonify({
@@ -258,32 +217,13 @@ def analyze_filtered_data():
                 'error': f'Value column "{value_col}" not found in data'
             }), 400
 
-        # Determine correct column names for analysis
-        product_col = None
-        for col in ['Item_Description_cluster', 'Item_Description', 'Product_Description_cluster', 'Product_Description']:
-            if col in df.columns:
-                product_col = col
-                break
+        # Set column names for analysis based on your actual columns
+        product_col = 'Item_Description'
+        importer_col = 'Importer_City_State'
+        supplier_col = 'Country_of_Origin'
+        quantity_col = 'Quantity'
 
-        importer_col = None
-        for col in ['Importer_City_State_cluster', 'Importer_City_State', 'Importer_Name_cluster', 'Importer_Name']:
-            if col in df.columns:
-                importer_col = col
-                break
-
-        supplier_col = None
-        for col in ['Country_of_Origin_cluster', 'Country_of_Origin', 'Supplier_Name_cluster', 'Supplier_Name']:
-            if col in df.columns:
-                supplier_col = col
-                break
-
-        quantity_col = None
-        for col in ['Quantity', 'Qty', 'Quantity_cluster']:
-            if col in df.columns:
-                quantity_col = col
-                break
-
-        print(f"✅ Analysis columns: product={product_col}, importer={importer_col}, supplier={supplier_col}, value={value_col}, quantity={quantity_col}")
+        print(f"Analysis columns: product={product_col}, importer={importer_col}, supplier={supplier_col}, value={value_col}, quantity={quantity_col}")
 
         # Perform analysis
         analysis_results = perform_trade_analysis(

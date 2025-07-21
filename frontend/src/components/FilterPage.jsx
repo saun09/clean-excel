@@ -4,9 +4,14 @@ import './css/FilterPage.css';
 import DataTable from './DataTable';
 import Plot from 'react-plotly.js';
 import Select from 'react-select';
+import { useNavigate } from 'react-router-dom';
+
 
 const FilterPage = () => {
   const [data, setData] = useState([]);
+  const [columnMappings, setColumnMappings] = useState({});
+  const [availableColumns, setAvailableColumns] = useState([]);
+   const navigate = useNavigate();
 
   const [filterOptions, setFilterOptions] = useState({
     tradeTypes: [],
@@ -19,54 +24,77 @@ const FilterPage = () => {
   });
 
   const [selectedFilters, setSelectedFilters] = useState({
-  tradeType: [],
-  importer: [],
-  supplier: [],
-  valueCol: '',
-  years: [],
-  hscode: [],
-  item: []
-});
-
-
+    tradeType: [],
+    importer: [],
+    supplier: [],
+    valueCol: '',
+    years: [],
+    hscode: [],
+    item: []
+  });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [previewData, setPreviewData] = useState([]);
-  //const clusteredFilename = sessionStorage.getItem("df_clustered");
   const clusteredFilename = sessionStorage.getItem("finalClusteredFilename");
-
   const [analysisResults, setAnalysisResults] = useState(null);
- const getMultiSelectOptions = (list) =>
-  list.map(option => ({ label: option, value: option }));
 
-const handleMultiChange = (name, selectedOptions) => {
-  const values = selectedOptions.map(option => option.value);
+  // Helper function to find column by possible names
+  const findColumnByNames = (columns, possibleNames) => {
+    for (const name of possibleNames) {
+      const found = columns.find(col => 
+        col.toLowerCase().includes(name.toLowerCase()) ||
+        name.toLowerCase().includes(col.toLowerCase())
+      );
+      if (found) return found;
+    }
+    return null;
+  };
 
-  if (values.includes('All')) {
-    const fullList = {
-      tradeType: filterOptions.tradeTypes,
-      importer: filterOptions.importerCities,
-      supplier: filterOptions.supplierCountries,
-    //  valueCol: filterOptions.numericColumns,
-      years: filterOptions.years,
-      hscode: filterOptions.hscodes,
-      item: filterOptions.itemDescriptions
-    }[name];
+  // Dynamic column detection
+  const detectColumnMappings = (columns) => {
+    const mappings = {
+      importer: findColumnByNames(columns, ['Importer_City_State', 'importer', 'city', 'state', 'importer_city']),
+      supplier: findColumnByNames(columns, ['Country_of_Origin', 'supplier', 'country', 'origin', 'exporter']),
+      tradeType: findColumnByNames(columns, ['Type', 'trade_type', 'transaction_type']),
+      hscode: findColumnByNames(columns, ['CTH_HSCODE', 'hscode', 'hs_code', 'tariff_code']),
+      item: findColumnByNames(columns, ['Item_Description', 'description', 'product', 'item', 'commodity']),
+      quantity: findColumnByNames(columns, ['Quantity', 'qty', 'amount', 'volume']),
+      year: findColumnByNames(columns, ['YEAR', 'year']),
+      month: findColumnByNames(columns, ['Month', 'month', 'date'])
+    };
+    
+    console.log('🔍 Detected column mappings:', mappings);
+    return mappings;
+  };
 
-    setSelectedFilters(prev => ({
-      ...prev,
-      [name]: fullList
-    }));
-  } else {
-    setSelectedFilters(prev => ({
-      ...prev,
-      [name]: values
-    }));
-  }
-};
+  const getMultiSelectOptions = (list) =>
+    list.map(option => ({ label: option, value: option }));
 
+  const handleMultiChange = (name, selectedOptions) => {
+    const values = selectedOptions.map(option => option.value);
 
+    if (values.includes('All')) {
+      const fullList = {
+        tradeType: filterOptions.tradeTypes,
+        importer: filterOptions.importerCities,
+        supplier: filterOptions.supplierCountries,
+        years: filterOptions.years,
+        hscode: filterOptions.hscodes,
+        item: filterOptions.itemDescriptions
+      }[name];
+
+      setSelectedFilters(prev => ({
+        ...prev,
+        [name]: fullList
+      }));
+    } else {
+      setSelectedFilters(prev => ({
+        ...prev,
+        [name]: values
+      }));
+    }
+  };
 
   useEffect(() => {
     if (clusteredFilename) {
@@ -94,6 +122,12 @@ const handleMultiChange = (name, selectedOptions) => {
         hscodes: [],
         item_descriptions: []
       };
+
+      // Store all available columns for dynamic mapping
+      if (response.data?.available_columns) {
+        setAvailableColumns(response.data.available_columns);
+        setColumnMappings(detectColumnMappings(response.data.available_columns));
+      }
 
       setFilterOptions({
         tradeTypes: options.trade_types || [],
@@ -138,41 +172,27 @@ const handleMultiChange = (name, selectedOptions) => {
     });
   };
 
-  const handleYearSelect = (e) => {
-    const selected = Array.from(e.target.options)
-      .filter(option => option.selected)
-      .map(option => option.value);
-    console.log('📅 Selected Years:', selected);
-    setSelectedFilters(prev => ({
-      ...prev,
-      years: selected
-    }));
-  };
-
   const handlePreview = async () => {
     try {
       setLoading(true);
       setError('');
       setPreviewData([]);
       
-
       const payload = {
         filename: clusteredFilename,
-        ...(selectedFilters.tradeType.length>0 && { tradeType: selectedFilters.tradeType }),
+        ...(selectedFilters.tradeType.length > 0 && { tradeType: selectedFilters.tradeType }),
         ...(selectedFilters.importer.length > 0 && { importer: selectedFilters.importer }),
-        ...(selectedFilters.supplier.length>0 && { supplier: selectedFilters.supplier}),
+        ...(selectedFilters.supplier.length > 0 && { supplier: selectedFilters.supplier }),
         ...(typeof selectedFilters.valueCol === 'string' && selectedFilters.valueCol.trim() !== '' && {
-        value_col: selectedFilters.valueCol
+          value_col: selectedFilters.valueCol
         }),
-        ...(selectedFilters.hscode && { hscode: selectedFilters.hscode.toString().trim() }),
+        ...(selectedFilters.hscode.length > 0 && { hscode: selectedFilters.hscode }),
+        ...(selectedFilters.item.length > 0 && { item: selectedFilters.item }),
+        ...(selectedFilters.years.length > 0 && { years: selectedFilters.years })
       };
-      if (Array.isArray(payload.hscode)) {
-  payload.hscode = payload.hscode.join(',');  // Or just use first one: payload.hscode[0]
-}
 
       console.log('Sending payload:', payload);
-      console.log("👉 Payload value_col type:", typeof payload.value_col);
-      console.log("👉 Payload value_col value:", payload.value_col);
+      
       const response = await axios.post('http://localhost:5000/api/filter-data', payload, {
         headers: { 'Content-Type': 'application/json' }
       });
@@ -197,211 +217,250 @@ const handleMultiChange = (name, selectedOptions) => {
     }
   };
 
-  const renderDropdown = (label, name, options, required = false) => (
-    <div className="form-group">
-      <label>{label}{required && ' *'}</label>
-      <select
-        name={name}
-        value={selectedFilters[name]}
-        onChange={handleFilterChange}
-        required={required}
-        disabled={loading || options.length === 0}
-      >
-        <option value="">Select {label.split(' ')[0]}</option>
-        {options.map(option => (
-          <option key={option} value={option}>{option}</option>
-        ))}
-      </select>
-    </div>
-  );
-const handleAnalyze = async () => {
-  try {
-    setLoading(true);
-    setError('');
-    setAnalysisResults(null);
+  const handleAnalyze = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      setAnalysisResults(null);
 
-    const payload = {
-      filename: clusteredFilename,
-      ...(selectedFilters.tradeType.length>0 && { tradeType: selectedFilters.tradeType }),
-      ...(selectedFilters.importer.length>0 && { importer: selectedFilters.importer }),
-      ...(selectedFilters.supplier.length>0 && { supplier: selectedFilters.supplier }),
-      ...(selectedFilters.hscode.length>0 && { hscode: selectedFilters.hscode }),
-      ...(selectedFilters.item.length>0 && { item: selectedFilters.item }),
-      ...(selectedFilters.years.length > 0 && { years: selectedFilters.years }),
-      value_col: selectedFilters.valueCol
-    };
+      const payload = {
+        filename: clusteredFilename,
+        ...(selectedFilters.tradeType.length > 0 && { tradeType: selectedFilters.tradeType }),
+        ...(selectedFilters.importer.length > 0 && { importer: selectedFilters.importer }),
+        ...(selectedFilters.supplier.length > 0 && { supplier: selectedFilters.supplier }),
+        ...(selectedFilters.hscode.length > 0 && { hscode: selectedFilters.hscode }),
+        ...(selectedFilters.item.length > 0 && { item: selectedFilters.item }),
+        ...(selectedFilters.years.length > 0 && { years: selectedFilters.years }),
+        value_col: selectedFilters.valueCol,
+        // Send column mappings to backend for dynamic handling
+        column_mappings: columnMappings
+      };
 
-    console.log('🔍 Analyzing with payload:', payload);
+      console.log('🔍 Analyzing with payload:', payload);
 
-    const response = await axios.post('http://localhost:5000/api/analyze-filtered', payload, {
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+      const response = await axios.post('http://localhost:5000/api/analyze-filtered', payload, {
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      let parsedData;
+      try {
+        if (typeof response.data === 'string') {
+          const cleanedJsonString = response.data
+            .replace(/:\s*NaN/g, ': null')
+            .replace(/:\s*-NaN/g, ': null')
+            .replace(/:\s*Infinity/g, ': null')
+            .replace(/:\s*-Infinity/g, ': null');
+          
+          parsedData = JSON.parse(cleanedJsonString);
+        } else {
+          parsedData = response.data;
+        }
+      } catch (parseError) {
+        console.error('❌ Failed to parse response data:', parseError);
+        throw new Error('Invalid response format from server');
       }
+      
+      const { success, results, message } = parsedData || {};
+      
+      const hasResults = results && typeof results === 'object' && 
+        Object.values(results).some(section => Array.isArray(section) && section.length > 0);
+
+      if (success && hasResults) {
+        setAnalysisResults(results);
+        setError('');
+        console.log('✅ Analysis results set successfully');
+      } else {
+        setAnalysisResults(null);
+        setError(message || 'Analysis completed but no results found');
+      }
+
+    } catch (err) {
+      console.error('❌ Analysis failed:', err);
+      setAnalysisResults(null);
+      setError(err.response?.data?.error || err.message || 'Analysis failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Dynamic table column generation
+  const generateTableColumns = (data, section) => {
+    if (!data || data.length === 0) return [];
+    
+    const firstRow = data[0];
+    const columns = [];
+
+    // Map common column names dynamically
+    Object.keys(firstRow).forEach(key => {
+      let header = key;
+      let accessor = key;
+
+      // Transform column headers for better readability
+      if (key === columnMappings.importer || key.includes('Importer') || key.includes('City')) {
+        header = 'Importer';
+      } else if (key === columnMappings.supplier || key.includes('Country') || key.includes('Origin')) {
+        header = 'Supplier Country';
+      } else if (key === selectedFilters.valueCol) {
+        header = 'Trade Value';
+      } else if (key.includes('Unit_Value')) {
+        header = 'Value per Unit';
+      } else if (key.includes('Share')) {
+        header = 'Market Share (%)';
+      } else if (key.includes('Change')) {
+        header = 'Change (%)';
+      }
+
+      columns.push({ Header: header, accessor });
     });
 
-    console.log('✅ Full Response:', response);
-    console.log('✅ Response Data:', response.data);
-    console.log('✅ Response Data Type:', typeof response.data);
-    
-    // ✅ FIXED: Parse JSON string if necessary and handle NaN values
-    let parsedData;
-    try {
-      if (typeof response.data === 'string') {
-        // Clean NaN values from the JSON string before parsing
-        const cleanedJsonString = response.data
-          .replace(/:\s*NaN/g, ': null')
-          .replace(/:\s*-NaN/g, ': null')
-          .replace(/:\s*Infinity/g, ': null')
-          .replace(/:\s*-Infinity/g, ': null');
-        
-        parsedData = JSON.parse(cleanedJsonString);
-      } else {
-        parsedData = response.data;
-      }
-    } catch (parseError) {
-      console.error('❌ Failed to parse response data:', parseError);
-      console.error('❌ Raw response data:', response.data);
-      throw new Error('Invalid response format from server');
-    }
-    
-    console.log('✅ Parsed Data:', parsedData);
-    
-    // Extract data more defensively
-    const { success, results, message } = parsedData || {};
-    
-    console.log('- success:', success);
-    console.log('- results exists:', !!results);
-    console.log('- message:', message);
-    console.log('- results type:', typeof results);
-    console.log('- results keys:', results ? Object.keys(results) : 'no results');
+    return columns;
+  };
 
-    // Check for valid results
-    const hasResults = results && typeof results === 'object' && 
-      Object.values(results).some(section => Array.isArray(section) && section.length > 0);
+  const renderAnalysisSection = (title, data, customColumns = null) => {
+    if (!data || data.length === 0) return null;
 
-    if (success && hasResults) {
-      setAnalysisResults(results);
-      setError('');
-      console.log('✅ Analysis results set successfully');
-    } else {
-      setAnalysisResults(null);
-      setError(message || 'Analysis completed but no results found');
-      console.log('❌ No valid results found');
-    }
+    const columns = customColumns || generateTableColumns(data, title);
 
-  } catch (err) {
-    console.error('❌ Analysis failed:', err);
-    setAnalysisResults(null);
-    setError(err.response?.data?.error || err.message || 'Analysis failed');
-    console.log("🔍 Error Response:", err.response?.data);
+    return (
+      <div className="analysis-section" key={title}>
+        <h4>{title}</h4>
+        <DataTable
+          data={data}
+          columns={columns}
+        />
+      </div>
+    );
+  };
 
-  }
-   finally {
-    setLoading(false);
-  }
-  
-};
   return (
     <div className="filter-container">
       <h2>Filter and Analyze Trade Data</h2>
+      <div style={{ marginBottom: '1rem' }}>
+  <button className="go-catalog-btn" onClick={() => navigate('/analysis-catalog')}>
+    Go to Catalog
+  </button>
+</div>
+
       
       {error && !analysisResults && <div className="error-message">{error}</div>}
 
+      {/* Column Mapping Info */}
+      {Object.keys(columnMappings).length > 0 && (
+        <div className="column-info">
+          <details>
+            <summary>Detected Column Mappings</summary>
+            <ul>
+              {Object.entries(columnMappings).map(([key, value]) => (
+                <li key={key}>{key}: {value || 'Not found'}</li>
+              ))}
+            </ul>
+          </details>
+        </div>
+      )}
+
       <div className="filter-form">
         <div className="form-group">
-  <label>Trade Type</label>
-  <Select
-    isMulti
-    name="tradeType"
-    options={[{ label: 'All', value: 'All' }, ...getMultiSelectOptions(filterOptions.tradeTypes)]}
-    value={selectedFilters.tradeType.map(val => ({ label: val, value: val }))}
-    onChange={(selected) => handleMultiChange('tradeType', selected)}
-    isDisabled={loading || filterOptions.tradeTypes.length === 0}
-  />
-</div>
-
-<div className="form-group">
-  <label>Importer City/State *</label>
-  <Select
-    isMulti
-    name="importer"
-    options={[{ label: 'All', value: 'All' }, ...getMultiSelectOptions(filterOptions.importerCities)]}
-    value={selectedFilters.importer.map(val => ({ label: val, value: val }))}
-    onChange={(selected) => handleMultiChange('importer', selected)}
-    isDisabled={loading || filterOptions.importerCities.length === 0}
-  />
-</div>
-
-<div className="form-group">
-  <label>Supplier Country *</label>
-  <Select
-    isMulti
-    name="supplier"
-    options={[{ label: 'All', value: 'All' }, ...getMultiSelectOptions(filterOptions.supplierCountries)]}
-    value={selectedFilters.supplier.map(val => ({ label: val, value: val }))}
-    onChange={(selected) => handleMultiChange('supplier', selected)}
-    isDisabled={loading || filterOptions.supplierCountries.length === 0}
-  />
-</div>
-
-<div className = "form-group">
-  <label>Value Column * </label>
-<Select
-  name="valueCol"
-  options={getMultiSelectOptions(filterOptions.numericColumns)}
-  value={selectedFilters.valueCol ? { label: selectedFilters.valueCol, value: selectedFilters.valueCol } : null}
-  onChange={(selected) =>
-    setSelectedFilters(prev => ({
-      ...prev,
-      valueCol: selected ? selected.value : ''
-    }))
-  }
-  isDisabled={loading || filterOptions.numericColumns.length === 0}
-/>
-</div>
-
+          <label>Trade Type</label>
+          <Select
+            isMulti
+            name="tradeType"
+            options={[{ label: 'All', value: 'All' }, ...getMultiSelectOptions(filterOptions.tradeTypes)]}
+            value={selectedFilters.tradeType.map(val => ({ label: val, value: val }))}
+            onChange={(selected) => handleMultiChange('tradeType', selected)}
+            isDisabled={loading || filterOptions.tradeTypes.length === 0}
+            placeholder={filterOptions.tradeTypes.length === 0 ? 'No trade types available' : 'Select trade types...'}
+          />
+        </div>
 
         <div className="form-group">
-  <label>Years</label>
-  <Select
-    isMulti
-    name="years"
-    options={[{ label: 'All', value: 'All' }, ...filterOptions.years.map(year => ({ label: year, value: year }))]}
-    value={selectedFilters.years.map(year => ({ label: year, value: year }))}
-    onChange={(selectedOptions) => handleMultiChange('years', selectedOptions)}
-    isDisabled={loading || filterOptions.years.length === 0}
-  />
-</div>
+          <label>Importer City/State *</label>
+          <Select
+            isMulti
+            name="importer"
+            options={[{ label: 'All', value: 'All' }, ...getMultiSelectOptions(filterOptions.importerCities)]}
+            value={selectedFilters.importer.map(val => ({ label: val, value: val }))}
+            onChange={(selected) => handleMultiChange('importer', selected)}
+            isDisabled={loading || filterOptions.importerCities.length === 0}
+            placeholder={filterOptions.importerCities.length === 0 ? 'No importers available' : 'Select importers...'}
+          />
+        </div>
 
-        
         <div className="form-group">
-  <label>HS Code</label>
-  <Select
-    isMulti
-    name="hscode"
-    options={[{ label: 'All', value: 'All' }, ...getMultiSelectOptions(filterOptions.hscodes)]}
-    value={selectedFilters.hscode.map(val => ({ label: val, value: val }))}
-    onChange={(selected) => handleMultiChange('hscode', selected)}
-    isDisabled={loading || filterOptions.hscodes.length === 0}
-  />
-</div>
+          <label>Supplier Country *</label>
+          <Select
+            isMulti
+            name="supplier"
+            options={[{ label: 'All', value: 'All' }, ...getMultiSelectOptions(filterOptions.supplierCountries)]}
+            value={selectedFilters.supplier.map(val => ({ label: val, value: val }))}
+            onChange={(selected) => handleMultiChange('supplier', selected)}
+            isDisabled={loading || filterOptions.supplierCountries.length === 0}
+            placeholder={filterOptions.supplierCountries.length === 0 ? 'No suppliers available' : 'Select suppliers...'}
+          />
+        </div>
 
-<div className="form-group">
-  <label>Item Description</label>
-  <Select
-    isMulti
-    name="item"
-    options={[{ label: 'All', value: 'All' }, ...getMultiSelectOptions(filterOptions.itemDescriptions)]}
-    value={selectedFilters.item.map(val => ({ label: val, value: val }))}
-    onChange={(selected) => handleMultiChange('item', selected)}
-    isDisabled={loading || filterOptions.itemDescriptions.length === 0}
-  />
-</div>
+        <div className="form-group">
+          <label>Value Column *</label>
+          <Select
+            name="valueCol"
+            options={getMultiSelectOptions(filterOptions.numericColumns)}
+            value={selectedFilters.valueCol ? { label: selectedFilters.valueCol, value: selectedFilters.valueCol } : null}
+            onChange={(selected) =>
+              setSelectedFilters(prev => ({
+                ...prev,
+                valueCol: selected ? selected.value : ''
+              }))
+            }
+            isDisabled={loading || filterOptions.numericColumns.length === 0}
+            placeholder={filterOptions.numericColumns.length === 0 ? 'No numeric columns available' : 'Select value column...'}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Years</label>
+          <Select
+            isMulti
+            name="years"
+            options={[{ label: 'All', value: 'All' }, ...filterOptions.years.map(year => ({ label: year, value: year }))]}
+            value={selectedFilters.years.map(year => ({ label: year, value: year }))}
+            onChange={(selectedOptions) => handleMultiChange('years', selectedOptions)}
+            isDisabled={loading || filterOptions.years.length === 0}
+            placeholder={filterOptions.years.length === 0 ? 'No years available' : 'Select years...'}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>HS Code</label>
+          <Select
+            isMulti
+            name="hscode"
+            options={[{ label: 'All', value: 'All' }, ...getMultiSelectOptions(filterOptions.hscodes)]}
+            value={selectedFilters.hscode.map(val => ({ label: val, value: val }))}
+            onChange={(selected) => handleMultiChange('hscode', selected)}
+            isDisabled={loading || filterOptions.hscodes.length === 0}
+            placeholder={filterOptions.hscodes.length === 0 ? 'No HS codes available' : 'Select HS codes...'}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Item Description</label>
+          <Select
+            isMulti
+            name="item"
+            options={[{ label: 'All', value: 'All' }, ...getMultiSelectOptions(filterOptions.itemDescriptions)]}
+            value={selectedFilters.item.map(val => ({ label: val, value: val }))}
+            onChange={(selected) => handleMultiChange('item', selected)}
+            isDisabled={loading || filterOptions.itemDescriptions.length === 0}
+            placeholder={filterOptions.itemDescriptions.length === 0 ? 'No items available' : 'Select items...'}
+          />
+        </div>
+
         <div className="button-group">
           <button 
             onClick={handlePreview} 
-            disabled={loading || !selectedFilters.importer || !selectedFilters.supplier || !selectedFilters.valueCol}
+            disabled={loading || selectedFilters.importer.length === 0 || selectedFilters.supplier.length === 0 || !selectedFilters.valueCol}
           >
             {loading ? 'Processing...' : 'Preview Data'}
           </button>
@@ -461,94 +520,76 @@ const handleAnalyze = async () => {
             )}
           </div>
           
-          {/* Top Importers Table */}
-          {analysisResults['1. Top Importer-Supplier Combinations'] && (
-            <div className="analysis-section">
-              <h4>Top Importer-Supplier Combinations</h4>
-              <DataTable
-                data={analysisResults['1. Top Importer-Supplier Combinations']}
-                columns={[
-                  { Header: 'Importer', accessor: 'Importer_City_State' },
-                  { Header: 'Supplier', accessor: 'Country_of_Origin' },
-                  { Header: 'Value', accessor: selectedFilters.valueCol || 'BE_NO' }
-                ]}
-              />
-            </div>
-          )}
-          
-          {/* Export Dominance */}
-          {analysisResults['4. Export Dominance Share'] && (
-            <div className="analysis-section">
-              <h4>Export Market Share</h4>
-              <DataTable
-                data={analysisResults['4. Export Dominance Share']}
-                columns={[
-                  { Header: 'Country', accessor: 'Country_of_Origin' },
-                  { Header: 'Value', accessor: selectedFilters.valueCol || 'BE_NO' },
-                  { Header: 'Market Share', accessor: '% Share' }
-                ]}
-              />
-            </div>
-          )}
-          
-          {/* Unit Value Analysis */}
-          {analysisResults['7A. Highest Avg Value per Unit'] && (
-            <div className="analysis-section">
-              <h4>Unit Value Analysis</h4>
-              <div className="unit-value-comparison">
-                <div>
-                  <h5>Highest Unit Values</h5>
-                  <DataTable
-                    data={analysisResults['7A. Highest Avg Value per Unit']}
-                    columns={[
-                      { Header: 'Supplier', accessor: 'Country_of_Origin' },
-                      { Header: 'Importer', accessor: 'Importer_City_State' },
-                      { Header: 'Avg Value/Unit', accessor: 'Unit_Value' }
+          {/* Dynamically render all analysis sections */}
+          {Object.entries(analysisResults).map(([key, data]) => {
+            if (key === 'Trend Analysis' || key === 'error') return null;
+            
+            // Special handling for heatmap
+            if (key === '8. Importer-Supplier Heatmap Data' && Array.isArray(data) && data.length > 0) {
+              return (
+                <div className="analysis-section" key={key}>
+                  <h4>Importer-Supplier Heatmap</h4>
+                  <Plot
+                    data={[
+                      {
+                        z: data.map(row => 
+                          Object.entries(row)
+                            .filter(([colKey]) => !colKey.includes(columnMappings.importer || 'Importer'))
+                            .map(([, val]) => val)
+                        ),
+                        x: Object.keys(data[0]).filter(colKey => !colKey.includes(columnMappings.importer || 'Importer')),
+                        y: data.map(row => row[columnMappings.importer] || row['Importer_City_State'] || Object.values(row)[0]),
+                        type: 'heatmap',
+                        colorscale: 'Viridis',
+                      }
                     ]}
+                    layout={{
+                      width: 700,
+                      height: 500,
+                      title: 'Trade Value Heatmap',
+                      xaxis: { title: 'Supplier Country' },
+                      yaxis: { title: 'Importer City/State' }
+                    }}
                   />
                 </div>
-                <div>
-                  <h5>Lowest Unit Values</h5>
-                  <DataTable
-                    data={analysisResults['7B. Lowest Avg Value per Unit']}
-                    columns={[
-                      { Header: 'Supplier', accessor: 'Country_of_Origin' },
-                      { Header: 'Importer', accessor: 'Importer_City_State' },
-                      { Header: 'Avg Value/Unit', accessor: 'Unit_Value' }
-                    ]}
-                  />
+              );
+            }
+            
+            // Handle unit value analysis with split display
+            if (key === '7A. Highest Avg Value per Unit' && analysisResults['7B. Lowest Avg Value per Unit']) {
+              return (
+                <div className="analysis-section" key="unit-value-analysis">
+                  <h4>Unit Value Analysis</h4>
+                  <div className="unit-value-comparison">
+                    <div>
+                      <h5>Highest Unit Values</h5>
+                      <DataTable
+                        data={data}
+                        columns={generateTableColumns(data, key)}
+                      />
+                    </div>
+                    <div>
+                      <h5>Lowest Unit Values</h5>
+                      <DataTable
+                        data={analysisResults['7B. Lowest Avg Value per Unit']}
+                        columns={generateTableColumns(analysisResults['7B. Lowest Avg Value per Unit'], '7B')}
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
-          {analysisResults['8. Importer-Supplier Heatmap Data'] && (
-  <div className="analysis-section">
-    <h4>Importer-Supplier Heatmap</h4>
-    <Plot
-      data={[
-        {
-          z: analysisResults['8. Importer-Supplier Heatmap Data'].map(row => 
-              Object.entries(row)
-                .filter(([key]) => key !== 'Importer_City_State')
-                .map(([, val]) => val)
-          ),
-          x: Object.keys(analysisResults['8. Importer-Supplier Heatmap Data'][0]).filter(key => key !== 'Importer_City_State'),
-          y: analysisResults['8. Importer-Supplier Heatmap Data'].map(row => row.Importer_City_State),
-          type: 'heatmap',
-          colorscale: 'Viridis',
-        }
-      ]}
-      layout={{
-        width: 700,
-        height: 500,
-        title: 'Trade Value Heatmap',
-        xaxis: { title: 'Supplier Country' },
-        yaxis: { title: 'Importer City/State' }
-      }}
-    />
-  </div>
-)}
-
+              );
+            }
+            
+            // Skip 7B as it's handled above
+            if (key === '7B. Lowest Avg Value per Unit') return null;
+            
+            // Regular table sections
+            if (Array.isArray(data) && data.length > 0) {
+              return renderAnalysisSection(key, data);
+            }
+            
+            return null;
+          })}
         </div>
       )}
     </div>

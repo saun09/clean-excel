@@ -1,11 +1,12 @@
 /* MainLayout.css */
 .main-layout {
   display: flex;
-  height: 100vh;
+   min-height: 100vh; 
   width: 100vw;
-  overflow: hidden;
+  overflow: auto;
   background-color: #f9fafb;
 }
+
 
 .content-area {
   flex: 1;
@@ -14,4 +15,46 @@
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
+}
+
+
+/* MainLayout.css */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  margin-left: 280px; /* Default expanded sidebar width */
+  flex: 1;
+  min-height: 100vh;
+  background: #f8fafc;
+  transition: margin-left 0.3s ease;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Adjust margin when sidebar is collapsed */
+.sidebar.collapsed ~ .main-content,
+.main-content.sidebar-collapsed {
+  margin-left: 70px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .sidebar.collapsed ~ .main-content,
+  .main-content.sidebar-collapsed {
+    margin-left: 0;
+  }
+}
+
+/* Ensure content doesn't get cut off */
+.main-content > * {
+  width: 100%;
+  max-width: 100%;
 }

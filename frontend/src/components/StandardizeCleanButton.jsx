@@ -8,6 +8,7 @@ const StandardizeCleanButton = ({ filename, onStatusUpdate, onCleanComplete }) =
   const [downloadLink, setDownloadLink] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPreview, setShowPreview] = useState(false); 
   const navigate = useNavigate();
   const handleStandardize = async () => {
     setLoading(true);
@@ -40,6 +41,7 @@ const StandardizeCleanButton = ({ filename, onStatusUpdate, onCleanComplete }) =
       setDownloadLink(`http://localhost:5000/api/download/${cleanedFilename}`);
       onStatusUpdate?.('Cleaning complete ✅');
       onCleanComplete?.(response.data.cleaned_filename);
+       setShowPreview(true); 
       sessionStorage.setItem("df_cleaned", response.data.cleaned_filename);
       navigate('/cluster/item-description', { //changed 'cosine-similarity'
       state: { cleanedFilename }

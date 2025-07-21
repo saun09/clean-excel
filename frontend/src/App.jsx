@@ -9,16 +9,17 @@ import ClusterResults from './components/ClusterResults';
 import AnalysisCatalogPage from './components/AnalysisCatalogPage';
 import FilterPage from './components/FilterPage';
 import ForecastPage from './components/ForecastPage';
-import ComparativePage from './components/ComparativePage';
-import ClusterSummaryPage from './components/ClusterSummaryPage';
+
 //import FuzzyStandardizer from '../../might not need/FuzzyStandardizer';
 import CosineSimilarity  from './components/CosineSimilarity';
 
 import CosineClusterItemDescription from './components/CosineClusterItemDescription';
 import CosineClusterImporterName from './components/CosineClusterImporterName';
 import CosineClusterSupplierName from './components/CosineClusterSupplierName';
-
+import CompanyAnalysis from './components/CompanyAnalysis';
+import ClusterAnalysisPage from './components/ClusterAnalysisPage';
 import './App.css';
+import ComparativeAnalysis from './components/ComparativeAnalysis';
 
 function Home() {
   const [uploadedFileName, setUploadedFileName] = useState(null);
@@ -57,16 +58,29 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
 
-        <Route path="/cluster" element={
+        {/* <Route path="/cluster" element={
           <MainLayout>
             <ClusterPage />
           </MainLayout>
+        } /> */}
+         <Route path="standardize-btn" element={
+          <MainLayout>
+            <StandardizeCleanButton />
+          </MainLayout>
         } />
+
         <Route path="cosine-similarity" element={
           <MainLayout>
             <CosineSimilarity />
           </MainLayout>
         } />
+
+          <Route path="/analysis-catalog" element={
+          <MainLayout>
+            <AnalysisCatalogPage />
+          </MainLayout>
+        } />
+ 
 
         <Route path="/cluster-results" element={
           <MainLayout>
@@ -74,11 +88,7 @@ export default function App() {
           </MainLayout>
         } />
 
-        <Route path="/analysis-catalog" element={
-          <MainLayout>
-            <AnalysisCatalogPage />
-          </MainLayout>
-        } />
+      
 
         <Route path="/analytics/filter" element={
           <MainLayout>
@@ -92,15 +102,21 @@ export default function App() {
           </MainLayout>
         } />
 
-        <Route path="/analytics/comparative" element={
+        <Route path="/analytics/comparative-analysis" element={
           <MainLayout>
-            <ComparativePage />
+            <ComparativeAnalysis />
+          </MainLayout>
+        } />
+
+        <Route path="/analytics/company-analysis" element={
+          <MainLayout>
+            <CompanyAnalysis />
           </MainLayout>
         } />
 
         <Route path="/analytics/cluster-summary" element={
           <MainLayout>
-            <ClusterSummaryPage />
+            <ClusterAnalysisPage />
           </MainLayout>
         } />
 

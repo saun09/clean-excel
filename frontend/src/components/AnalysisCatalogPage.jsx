@@ -28,9 +28,9 @@ export default function AnalysisCatalogPage() {
     });
   };
 
-  if (!cleanedFilename || !clusterColumn) {
+ /*  if (!cleanedFilename || !clusterColumn) {
     return <p>Missing file or cluster data. Please complete clustering step first.</p>;
-  }
+  } */
 
   const cards = [
     {
@@ -49,44 +49,44 @@ export default function AnalysisCatalogPage() {
       title: 'Comparative Quantity Analysis',
       description: 'Compare quarters, months or years for products.',
       icon: <BarChart3 size={28} />,
-      route: '/comparative',
+      route: '/analytics/comparative-analysis', // Updated route to match new structure
     },
     {
       title: 'Analysis Company Wise',
       description: 'Break down key metrics by company.',
       icon: <Building2 size={28} />,
-      route: '/company-analysis',
+      route: '/analytics/company-analysis',
     },
-    {
+    /* {
       title: 'Business Questions',
       description: 'Answer strategic trade queries using your data.',
       icon: <HelpCircle size={28} />,
       route: '/business-questions',
-    },
+    }, */
     {
       title: 'Cluster Summary',
       description: 'Get cluster-level record counts, sums, averages.',
       icon: <FolderKanban size={28} />,
-      route: '/cluster-summary',
+      route: '/analytics/cluster-summary',
     },
-    {
+    /* {
       title: 'Top Clusters',
       description: 'Rank clusters by volume, value or quantity.',
       icon: <Award size={28} />,
       route: '/top-clusters',
-    },
-    {
+    }, */
+ /*    {
   title: 'Cross-Analysis',
   description: 'Compare clusters against categories like type, country.',
   icon: <ScatterChart size={28} />,
   route: '/cross-analysis',
-},
-{
+}, */
+/* {
   title: 'Detailed Breakdown',
   description: 'Category-wise breakdowns for each cluster.',
   icon: <LayoutGrid size={28} />,
   route: '/detailed-breakdown',
-}
+} */
 
   ];
 

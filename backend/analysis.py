@@ -33,7 +33,7 @@ def group_data(df, group_by_columns, aggregation_rules=None):
         st.error(f"Error during grouping: {str(e)}")
         return df
 
-
+#-------------------------cluster analysis-------------------
 def perform_cluster_analysis(df, cluster_col, analysis_type, target_col=None, group_by_col=None, selected_clusters=None):
     """Perform various types of analysis on clustered data"""
     
@@ -133,16 +133,20 @@ def perform_cluster_analysis(df, cluster_col, analysis_type, target_col=None, gr
     
     return None, "Unknown analysis type"
 
+#-------------------------filter trade data-------------------
+import pandas as pd
+import numpy as np
+
 def normalize(s):
     return str(s).strip().lower()
 
 def filter_trade_data(df, trade_type_col, country_col, supplier_col, 
                       selected_trade_type=None, selected_country=None, selected_supplier=None):
     
-    st.write("### 🔎 Selected Filters")
-    st.write(f"- Trade Type: `{selected_trade_type}`")
-    st.write(f"- Importer Country: `{selected_country}`")
-    st.write(f"- Supplier Country: `{selected_supplier}`")
+    print("### 🔎 Selected Filters")
+    print(f"- Trade Type: `{selected_trade_type}`")
+    print(f"- Importer Country: `{selected_country}`")
+    print(f"- Supplier Country: `{selected_supplier}`")
 
     if selected_trade_type and trade_type_col in df.columns:
         df = df[df[trade_type_col].astype(str).apply(normalize) == normalize(selected_trade_type)]
@@ -156,175 +160,153 @@ def filter_trade_data(df, trade_type_col, country_col, supplier_col,
             normalized_suppliers = set(normalize(val) for val in selected_supplier)
             df = df[df[supplier_col].astype(str).apply(normalize).isin(normalized_suppliers)]
 
-
-    st.success(f"Filtered data shape: {df.shape}")
+    print(f"Filtered data shape: {df.shape}")
     return df
 
-import pandas as pd
-import numpy as np
-
-""" def perform_trade_analysis(df, product_col, quantity_col, value_col, importer_col, supplier_col):
+def perform_trade_analysis(df, product_col, quantity_col, value_col, importer_col, supplier_col):
     results = {}
 
     try:
-        # 1. Which importer country is importing the most from a particular supplier country for the selected product?
+        # 1. Which importer is importing the most from a particular supplier for the selected product?
         most_importing = df.groupby([importer_col, supplier_col])[value_col].sum().reset_index()
         most_importing = most_importing.sort_values(by=value_col, ascending=False).head(10)
-        results["1. Top Importer-Supplier Combinations"] = most_importing
+        results["1. Top Importer-Supplier Combinations"] = most_importing.to_dict(orient="records")
 
         # 2. What are the top countries exporting for a given product?
         top_exporting = df.groupby(supplier_col)[value_col].sum().reset_index()
         top_exporting = top_exporting.sort_values(by=value_col, ascending=False).head(10)
-        results["2. Top Exporting Countries"] = top_exporting
+        results["2. Top Exporting Countries"] = top_exporting.to_dict(orient="records")
 
         # 3. What are the top importing cities/states for a given product from a supplier country?
         top_importing_cities = df.groupby([importer_col, supplier_col])[value_col].sum().reset_index()
         top_importing_cities = top_importing_cities.sort_values(by=value_col, ascending=False).head(10)
-        results["3. Top Importing Cities/States by Supplier"] = top_importing_cities
+        results["3. Top Importing Cities/States by Supplier"] = top_importing_cities.to_dict(orient="records")
 
         # 4. Is there any country that dominates in export of selected product?
         dominant_export = top_exporting.copy()
         total_export = dominant_export[value_col].sum()
         dominant_export["% Share"] = (dominant_export[value_col] / total_export) * 100
-        results["4. Export Dominance Share"] = dominant_export
-
-        # 5. Which supplier country is sending the highest value of the product to particular importer country/city?
-        top_supplier_to_importer = df.groupby([supplier_col, importer_col])[value_col].sum().reset_index()
-        top_supplier_to_importer = top_supplier_to_importer.sort_values(by=value_col, ascending=False).head(10)
-        results["5. Highest Supplier to Importer Values"] = top_supplier_to_importer
-
-        # 6. Has the trade value for the selected HSCode+Item increased or decreased over time?
-        if "year_extracted" in df.columns:
-            time_col = "year_extracted"
-        elif "year" in df.columns:
-            time_col = "year"
-        elif "Month" in df.columns:
-            df["year_temp"] = pd.to_datetime(df["Month"], errors="coerce").dt.year
-            time_col = "year_temp"
-        else:
-            time_col = None
-
-        if time_col:
-            trend_df = df.groupby(time_col)[value_col].sum().reset_index()
-            trend_df = trend_df.sort_values(by=time_col)
-            trend_df["Change"] = trend_df[value_col].diff()
-            trend_df["% Change"] = trend_df[value_col].pct_change() * 100
-            results["6. Trade Value Trend Over Time"] = trend_df
-
-        # 7. Which supplier country is giving the lowest/highest average value per unit to an importer country?
-        df["Unit_Value"] = df[value_col] / df[quantity_col].replace(0, np.nan)
-        avg_unit_value = df.groupby([supplier_col, importer_col])["Unit_Value"].mean().reset_index()
-        highest_avg = avg_unit_value.sort_values(by="Unit_Value", ascending=False).head(5)
-        lowest_avg = avg_unit_value.sort_values(by="Unit_Value", ascending=True).head(5)
-        results["7A. Highest Avg Value per Unit"] = highest_avg
-        results["7B. Lowest Avg Value per Unit"] = lowest_avg
-
-        # 8. Heatmap: For selected item+HSCode, which importer/supplier pairs show highest trade value
-        heatmap_data = df.groupby([importer_col, supplier_col])[value_col].sum().reset_index()
-        heatmap_pivot = heatmap_data.pivot(index=importer_col, columns=supplier_col, values=value_col).fillna(0)
-        results["8. Importer-Supplier Heatmap Data"] = heatmap_pivot
-
-    except Exception as e:
-        results["error"] = f"Trade analysis failed: {str(e)}"
-
-    return results """
-def perform_trade_analysis(df, product_col, quantity_col, value_col, importer_col, supplier_col):
-    results = {}
-
-    try:
-        most_importing = df.groupby([importer_col, supplier_col])[value_col].sum().reset_index()
-        most_importing = most_importing.sort_values(by=value_col, ascending=False).head(10)
-        results["1. Top Importer-Supplier Combinations"] = most_importing.to_dict(orient="records")
-
-        top_exporting = df.groupby(supplier_col)[value_col].sum().reset_index()
-        top_exporting = top_exporting.sort_values(by=value_col, ascending=False).head(10)
-        results["2. Top Exporting Countries"] = top_exporting.to_dict(orient="records")
-
-        top_importing_cities = df.groupby([importer_col, supplier_col])[value_col].sum().reset_index()
-        top_importing_cities = top_importing_cities.sort_values(by=value_col, ascending=False).head(10)
-        results["3. Top Importing Cities/States by Supplier"] = top_importing_cities.to_dict(orient="records")
-
-        dominant_export = top_exporting.copy()
-        total_export = dominant_export[value_col].sum()
-        dominant_export["% Share"] = (dominant_export[value_col] / total_export) * 100
         results["4. Export Dominance Share"] = dominant_export.to_dict(orient="records")
 
+        # 5. Which supplier country is sending the highest value of the product to particular importer?
         top_supplier_to_importer = df.groupby([supplier_col, importer_col])[value_col].sum().reset_index()
         top_supplier_to_importer = top_supplier_to_importer.sort_values(by=value_col, ascending=False).head(10)
         results["5. Highest Supplier to Importer Values"] = top_supplier_to_importer.to_dict(orient="records")
 
-        # Time trend
-        if "year_extracted" in df.columns:
-            time_col = "year_extracted"
-        elif "year" in df.columns:
-            time_col = "year"
+        # 6. Has the trade value increased or decreased over time?
+        time_col = None
+        if "YEAR" in df.columns:
+            time_col = "YEAR"
         elif "Month" in df.columns:
-            df["year_temp"] = pd.to_datetime(df["Month"], errors="coerce").dt.year
-            time_col = "year_temp"
-        else:
-            time_col = None
+            try:
+                df["year_temp"] = pd.to_datetime(df["Month"], errors="coerce").dt.year
+                time_col = "year_temp"
+            except:
+                pass
 
-        if time_col:
+        if time_col and df[time_col].notna().any():
             trend_df = df.groupby(time_col)[value_col].sum().reset_index()
             trend_df = trend_df.sort_values(by=time_col)
             trend_df["Change"] = trend_df[value_col].diff()
             trend_df["% Change"] = trend_df[value_col].pct_change() * 100
             results["6. Trade Value Trend Over Time"] = trend_df.to_dict(orient="records")
+            
+            # Add trend analysis summary
+            if len(trend_df) >= 2:
+                first_year = trend_df.iloc[0]
+                last_year = trend_df.iloc[-1]
+                total_change = last_year[value_col] - first_year[value_col]
+                percent_change = ((last_year[value_col] - first_year[value_col]) / first_year[value_col]) * 100 if first_year[value_col] != 0 else 0
+                
+                trend_direction = "increased" if total_change > 0 else "decreased" if total_change < 0 else "remained stable"
+                results["Trend Analysis"] = f"From {int(first_year[time_col])} to {int(last_year[time_col])}, trade value has {trend_direction} by {percent_change:.1f}% (from {first_year[value_col]:,.0f} to {last_year[value_col]:,.0f})"
 
-        # Avg unit value
-        df["Unit_Value"] = df[value_col] / df[quantity_col].replace(0, np.nan)
-        avg_unit_value = df.groupby([supplier_col, importer_col])["Unit_Value"].mean().reset_index()
-        highest_avg = avg_unit_value.sort_values(by="Unit_Value", ascending=False).head(5)
-        lowest_avg = avg_unit_value.sort_values(by="Unit_Value", ascending=True).head(5)
-        results["7A. Highest Avg Value per Unit"] = highest_avg.to_dict(orient="records")
-        results["7B. Lowest Avg Value per Unit"] = lowest_avg.to_dict(orient="records")
+        # 7. Which supplier country is giving the lowest/highest average value per unit?
+        if quantity_col and quantity_col in df.columns:
+            # Clean quantity data - remove zeros and negatives
+            df_clean = df[df[quantity_col] > 0].copy()
+            df_clean["Unit_Value"] = df_clean[value_col] / df_clean[quantity_col]
+            
+            if not df_clean.empty:
+                avg_unit_value = df_clean.groupby([supplier_col, importer_col])["Unit_Value"].mean().reset_index()
+                avg_unit_value = avg_unit_value[avg_unit_value["Unit_Value"].notna()]
+                
+                if not avg_unit_value.empty:
+                    highest_avg = avg_unit_value.sort_values(by="Unit_Value", ascending=False).head(5)
+                    lowest_avg = avg_unit_value.sort_values(by="Unit_Value", ascending=True).head(5)
+                    results["7A. Highest Avg Value per Unit"] = highest_avg.to_dict(orient="records")
+                    results["7B. Lowest Avg Value per Unit"] = lowest_avg.to_dict(orient="records")
 
-        # Heatmap
+        # 8. Heatmap: Importer/supplier pairs with highest trade value
         heatmap_data = df.groupby([importer_col, supplier_col])[value_col].sum().reset_index()
-        heatmap_pivot = heatmap_data.pivot(index=importer_col, columns=supplier_col, values=value_col).fillna(0)
-        results["8. Importer-Supplier Heatmap Data"] = heatmap_pivot.reset_index().to_dict(orient="records")
+        
+        # Limit to top importers and suppliers to make heatmap manageable
+        top_importers = df.groupby(importer_col)[value_col].sum().nlargest(10).index
+        top_suppliers = df.groupby(supplier_col)[value_col].sum().nlargest(10).index
+        
+        heatmap_filtered = heatmap_data[
+            (heatmap_data[importer_col].isin(top_importers)) & 
+            (heatmap_data[supplier_col].isin(top_suppliers))
+        ]
+        
+        if not heatmap_filtered.empty:
+            heatmap_pivot = heatmap_filtered.pivot(
+                index=importer_col, 
+                columns=supplier_col, 
+                values=value_col
+            ).fillna(0)
+            results["8. Importer-Supplier Heatmap Data"] = heatmap_pivot.reset_index().to_dict(orient="records")
 
     except Exception as e:
         results["error"] = f"Trade analysis failed: {str(e)}"
+        print(f"Analysis error: {str(e)}")
 
     return results
-
 
 def analyze_trend(df, trade_type, product_name, selected_years):
     """
     Analyze trend in trade value for a selected product across years.
+    Updated to use your column structure.
     """
     try:
-        if "item_description" not in df.columns or "cth_hscode" not in df.columns:
-            return ""
+        # Check if required columns exist
+        if "Item_Description" not in df.columns or "CTH_HSCODE" not in df.columns:
+            return "Required columns (Item_Description, CTH_HSCODE) not found in data"
 
-        if "year_extracted" in df.columns:
-            year_col = "year_extracted"
-        elif "year" in df.columns:
-            year_col = "year"
+        # Determine year column
+        time_col = None
+        if "YEAR" in df.columns:
+            time_col = "YEAR"
         elif "Month" in df.columns:
-            df["year_temp"] = pd.to_datetime(df["Month"], errors="coerce").dt.year
-            year_col = "year_temp"
-        else:
-            return ""
+            try:
+                df["year_temp"] = pd.to_datetime(df["Month"], errors="coerce").dt.year
+                time_col = "year_temp"
+            except:
+                return "Unable to extract year from Month column"
 
-        item_col = "item_description"
+        if not time_col:
+            return "No valid year column found"
+
+        # Use your actual column names
+        item_col = "Item_Description"
         trade_col = "Type"
-        value_col = df.select_dtypes(include="number").columns[0]
+        value_col = df.select_dtypes(include="number").columns[0]  # First numeric column
 
+        # Filter data
         filtered = df[
-            (df[trade_col].str.lower() == trade_type.lower())
-            & (df[item_col].str.lower() == product_name.lower())
-            & (df[year_col].isin(selected_years))
+            (df[trade_col].str.lower() == trade_type.lower()) &
+            (df[item_col].str.lower() == product_name.lower()) &
+            (df[time_col].isin(selected_years))
         ]
 
-        if filtered.empty or len(filtered[year_col].unique()) < 2:
-            return ""
+        if filtered.empty or len(filtered[time_col].unique()) < 2:
+            return "Insufficient data for trend analysis"
 
-        trend = filtered.groupby(year_col)[value_col].sum().reset_index()
-        trend = trend.sort_values(by=year_col)
+        # Calculate trend
+        trend = filtered.groupby(time_col)[value_col].sum().reset_index()
+        trend = trend.sort_values(by=time_col)
 
-        y1, y2 = trend.iloc[0][year_col], trend.iloc[-1][year_col]
+        y1, y2 = int(trend.iloc[0][time_col]), int(trend.iloc[-1][time_col])
         v1, v2 = trend.iloc[0][value_col], trend.iloc[-1][value_col]
 
         if v2 > v1:
@@ -336,13 +318,14 @@ def analyze_trend(df, trade_type, product_name, selected_years):
 
         change = v2 - v1
         percent = (change / v1) * 100 if v1 != 0 else 0
+        
         return f"From {y1} to {y2}, the trade value has **{status}** from **{v1:,.0f}** to **{v2:,.0f}** (change: {percent:.2f}%)."
 
     except Exception as e:
         return f"Trend analysis failed: {e}"
 
 
-
+#-------------forecasting functions----------------
 def get_fy(date):
     if pd.isnull(date): return None
     if date.month <= 3:
@@ -382,7 +365,7 @@ def full_periodic_analysis(df, date_col, value_col):
 def analyze_trend(df, trade_type, product_name, selected_years):
     df_filtered = df[
         (df["Type"] == trade_type) &
-        (df["Item_Description_cluster"] == product_name) &
+        (df["Item_Description"] == product_name) &
         (df["YEAR"].isin(selected_years))
     ]
 
@@ -407,7 +390,7 @@ def analyze_trend(df, trade_type, product_name, selected_years):
     )
     return result
 
-
+#------------------comparative analysis-------------------
 def comparative_analysis(df, selected_years, time_period_type, selected_quarter_or_month, selected_hscode, selected_item, quantity_col='Quantity', month_col='Month'):
     import pandas as pd
 
@@ -424,9 +407,11 @@ def comparative_analysis(df, selected_years, time_period_type, selected_quarter_
 
     # Step 2: Filter by time period
     if time_period_type.lower() == 'quarter':
-        quarter_map = {'Q1': 1, 'Q2': 2, 'Q3': 3, 'Q4': 4}
-        selected_q = quarter_map[selected_quarter_or_month.upper()]
-        df_filtered = df_filtered[df_filtered['quarter'] == selected_q]
+        if selected_quarter_or_month.upper() != 'ALL':
+            quarter_map = {'Q1': 1, 'Q2': 2, 'Q3': 3, 'Q4': 4}
+            selected_q = quarter_map.get(selected_quarter_or_month.upper())
+            if selected_q is not None:
+                df_filtered = df_filtered[df_filtered['quarter'] == selected_q]
 
     elif time_period_type.lower() == 'month':
         month_map = {'JAN': 1, 'FEB': 2, 'MAR': 3, 'APR': 4, 'MAY': 5, 'JUN': 6,
@@ -437,7 +422,7 @@ def comparative_analysis(df, selected_years, time_period_type, selected_quarter_
     # Step 3: Filter by HS Code and Item Description
     df_filtered = df_filtered[
         (df_filtered['CTH_HSCODE'] == selected_hscode) &
-        (df_filtered['Item_Description_Cluster'] == selected_item)
+        (df_filtered['Item_Description'] == selected_item)
     ]
 
     # Step 4: Aggregate quantities by year

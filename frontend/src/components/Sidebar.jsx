@@ -14,20 +14,17 @@ const Sidebar = () => {
       to: '/',
     },
     {
-      label: 'Product Clustering',
+      label: 'Cosine Clustering',
       icon: <ListTree size={18} />,
-      to: '/cluster',
+      to: '/cluster/item-description',
     },
     {
       label: 'Analysis Catalog',
       icon: <BarChart2 size={18} />,
       to: '/analysis-catalog',
     },
-    {
-      label: 'Cluster Analysis',
-      icon: <Share2 size={18} />,
-      to: '/analytics/filter',
-    },
+
+    
   ];
 
   return (

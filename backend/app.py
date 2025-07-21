@@ -23,6 +23,16 @@ from routes.forecast_routes import forecast_bp
 print("importing cosine_bp")
 from routes.cosine_routes import cosine_bp
 
+from routes.comparative_routes import comparative_bp
+print("importing comparative_bp")
+
+from routes.Company_Analysis_routes import company_bp
+print("importing company_analysis_bp")
+
+from routes.Cluster_Analysis_routes import cluster_analysis_bp
+print("importing cluster_analysis_bp")
+
+
 app = Flask(__name__)
 app.config.from_object(Config)
 Config.init_app(app)
@@ -37,6 +47,9 @@ app.register_blueprint(export_bp)
 app.register_blueprint(filter_bp)
 app.register_blueprint(forecast_bp)
 app.register_blueprint(cosine_bp)
+app.register_blueprint(comparative_bp)
+app.register_blueprint(company_bp)
+app.register_blueprint(cluster_analysis_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -143,30 +143,39 @@ const FileUpload = ({ onUpload }) => {
       </div>
 
       {previewData && previewData.length > 0 && (
-        <div className="preview-container">
-          <h3>Data Preview</h3>
-          <table className="preview-table">
-            <thead>
-              <tr>
-                {Object.keys(previewData[0]).map((key) => (
-                  <th key={key}>{key}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {previewData.map((row, index) => (
-                <tr key={index}>
-                  {Object.values(row).map((value, cellIndex) => (
-                    <td key={cellIndex}>
-                      {value !== null && value !== undefined && !Number.isNaN(value) ? String(value) : '-'}
-                    </td>
-                  ))}
-                </tr>
+  <>
+    {/* Data Preview Card */}
+    <div className="preview-container">
+      <h3>Data Preview</h3>
+      <p className="upload-subtext">This is the raw preview of the uploaded file.</p>
+      <table className="preview-table">
+        <thead>
+          <tr>
+            {Object.keys(previewData[0]).map((key) => (
+              <th key={key}>{key}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {previewData.map((row, index) => (
+            <tr key={index}>
+              {Object.values(row).map((value, cellIndex) => (
+                <td key={cellIndex}>
+                  {value !== null && value !== undefined && !Number.isNaN(value)
+                    ? String(value)
+                    : '-'}
+                </td>
               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+
+  </>
+)}
+
     </div>
   );
 };
