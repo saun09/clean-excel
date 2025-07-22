@@ -33,7 +33,7 @@ html, body {
   font-size: 2rem;
   text-align: center;
   font-weight: 700;
-  color: var(--agr-blue);
+  color: #000000;
   margin-bottom: 0.5rem;
 }
 
@@ -136,14 +136,14 @@ button {
 }
 
 /* Secondary Button */
-.go-catalog-btn {
-  background-color: #6c63ff;
+/* .go-catalog-btn {
+  background-color: #A5B4FC;
   color: white;
 }
 
 .go-catalog-btn:hover {
-  background-color: #574fdd;
-}
+  background-color: #A5B4FC;
+} */
 
 /* Responsive */
 @media (max-width: 768px) {

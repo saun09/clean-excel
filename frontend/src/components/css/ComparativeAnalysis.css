@@ -3,13 +3,13 @@
   margin: 0 auto;
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, hsl(0, 0%, 100%) 0%, #ffffff 100%);
   min-height: 100vh;
 }
 
 .comparative-analysis-container h2 {
   text-align: center;
-  color: #2c3e50;
+  color: #000000;
   margin-bottom: 30px;
   font-size: 2.5rem;
   font-weight: 600;
@@ -17,17 +17,19 @@
 }
 
 .go-catalog-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background-color: #A5B4FC;
+  color: #FFFFFF;
   border: none;
-  padding: 10px 20px;
-  border-radius: 25px;
-  cursor: pointer;
-  font-size: 14px;
+  padding: 0.875rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
   font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 1rem;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); /* optional shadow */
 }
+
 
 .go-catalog-btn:hover {
   transform: translateY(-2px);
@@ -125,7 +127,7 @@
 }
 
 .analyze-btn {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  background: linear-gradient(135deg, #81b292 0%, #81b292 100%);
   color: white;
   border: none;
   padding: 15px 35px;

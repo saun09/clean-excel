@@ -1,28 +1,13 @@
 /* ForecastAnalysis.css - Minimalist design with AGR logo colors */
 
-/* Color Variables */
-:root {
-  --agr-red: #E31E24;
-  --agr-blue: #1E4B9C;
-  --agr-light-blue: #E8F2FF;
-  --agr-dark: #2C3E50;
-  --agr-gray: #64748B;
-  --agr-light-gray: #F8FAFC;
-  --agr-border: #E2E8F0;
-  --agr-white: #FFFFFF;
-  --agr-success: #10B981;
-  --agr-warning: #F59E0B;
-  --agr-error: #EF4444;
-}
-
 /* Base Styles */
 .forecast-page {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: var(--agr-dark);
-  background-color: var(--agr-white);
+  color: #2C3E50;
+  background-color: #FFFFFF;
 }
 
 /* Page Header */
@@ -30,20 +15,20 @@
   text-align: center;
   margin-bottom: 3rem;
   padding-bottom: 2rem;
-  border-bottom: 2px solid var(--agr-border);
+  border-bottom: 2px solid #FFFFFF;
 }
 
 .page-header h1 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--agr-blue);
+  color: #000000;
   margin: 0 0 0.5rem 0;
   letter-spacing: -0.025em;
 }
 
 .page-header p {
   font-size: 1.125rem;
-  color: var(--agr-gray);
+  color: #64748B;
   margin: 0;
 }
 
@@ -59,8 +44,8 @@
 .spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--agr-border);
-  border-top: 3px solid var(--agr-blue);
+  border: 3px solid #E2E8F0;
+  border-top: 3px solid #1E4B9C;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -72,7 +57,7 @@
 
 .loading-spinner p {
   margin-top: 1rem;
-  color: var(--agr-gray);
+  color: #64748B;
   font-size: 1rem;
 }
 
@@ -80,7 +65,7 @@
 .error-message {
   background-color: #FEF2F2;
   border: 1px solid #FECACA;
-  color: var(--agr-error);
+  color: #EF4444;
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 2rem;
@@ -95,22 +80,22 @@
 
 /* Form Styles */
 .forecast-form {
-  background-color: var(--agr-white);
-  border: 1px solid var(--agr-border);
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .form-section h2 {
-  color: var(--agr-blue);
+  color: #000000;
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0 0 0.5rem 0;
 }
 
 .form-note {
-  color: var(--agr-gray);
+  color: #64748B;
   margin-bottom: 2rem;
   font-size: 0.95rem;
 }
@@ -129,7 +114,7 @@
 
 .form-group label {
   font-weight: 500;
-  color: var(--agr-dark);
+  color: #2C3E50;
   margin-bottom: 0.5rem;
   font-size: 0.95rem;
 }
@@ -137,30 +122,30 @@
 .form-group select,
 .form-group input {
   padding: 0.75rem;
-  border: 1px solid var(--agr-border);
+  border: 1px solid #E2E8F0;
   border-radius: 6px;
   font-size: 1rem;
-  background-color: var(--agr-white);
-  color: var(--agr-dark);
+  background-color: #FFFFFF;
+  color: #2C3E50;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .form-group select:focus,
 .form-group input:focus {
   outline: none;
-  border-color: var(--agr-blue);
+  border-color: #1E4B9C;
   box-shadow: 0 0 0 3px rgba(30, 75, 156, 0.1);
 }
 
 .form-group select:disabled,
 .form-group input:disabled {
-  background-color: var(--agr-light-gray);
-  color: var(--agr-gray);
+  background-color: #F8FAFC;
+  color: #64748B;
   cursor: not-allowed;
 }
 
 .info-group {
-  background-color: var(--agr-light-blue);
+  background-color: #E8F2FF;
   padding: 1rem;
   border-radius: 8px;
   border: 1px solid rgba(30, 75, 156, 0.2);
@@ -168,20 +153,20 @@
 
 .years-display {
   font-weight: 500;
-  color: var(--agr-blue);
+  color: #1E4B9C;
   margin: 0.5rem 0;
   font-size: 1rem;
 }
 
 .info-group small {
-  color: var(--agr-gray);
+  color: #64748B;
   font-size: 0.85rem;
 }
 
 /* Buttons */
 .generate-btn {
-  background-color: var(--agr-red);
-  color: var(--agr-white);
+  background-color: #A5B4FC;
+  color: #FFFFFF;
   border: none;
   padding: 0.875rem 2rem;
   border-radius: 8px;
@@ -193,18 +178,18 @@
 }
 
 .generate-btn:hover:not(:disabled) {
-  background-color: #C41E24;
+  background-color: #A5B4FC;
 }
 
 .generate-btn:disabled {
-  background-color: var(--agr-gray);
+  background-color: #64748B;
   cursor: not-allowed;
 }
 
 .back-btn {
-  background-color: var(--agr-white);
-  color: var(--agr-blue);
-  border: 1px solid var(--agr-blue);
+  background-color: #FFFFFF;
+  color: #1E4B9C;
+  border: 1px solid #1E4B9C;
   padding: 0.5rem 1rem;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -213,7 +198,7 @@
 }
 
 .back-btn:hover {
-  background-color: var(--agr-light-blue);
+  background-color: #E8F2FF;
 }
 
 /* Results Section */
@@ -222,15 +207,15 @@
 }
 
 .results-header {
-  background-color: var(--agr-light-gray);
+  background-color: #F8FAFC;
   padding: 1.5rem;
   border-radius: 12px;
   margin-bottom: 2rem;
-  border: 1px solid var(--agr-border);
+  border: 1px solid #E2E8F0;
 }
 
 .results-header h2 {
-  color: var(--agr-blue);
+  color: #1E4B9C;
   font-size: 1.75rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -245,17 +230,17 @@
 
 .forecast-info span {
   font-size: 0.9rem;
-  color: var(--agr-dark);
+  color: #2C3E50;
 }
 
 .forecast-info strong {
-  color: var(--agr-blue);
+  color: #1E4B9C;
 }
 
 /* Chart Sections */
 .chart-section {
-  background-color: var(--agr-white);
-  border: 1px solid var(--agr-border);
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -263,18 +248,18 @@
 }
 
 .chart-section h3 {
-  color: var(--agr-blue);
+  color: #1E4B9C;
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 1.5rem 0;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--agr-border);
+  border-bottom: 2px solid #E2E8F0;
 }
 
 /* Metrics Section */
 .metrics-section {
-  background-color: var(--agr-white);
-  border: 1px solid var(--agr-border);
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -282,12 +267,12 @@
 }
 
 .metrics-section h3 {
-  color: var(--agr-blue);
+  color: #1E4B9C;
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 1.5rem 0;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--agr-border);
+  border-bottom: 2px solid #E2E8F0;
 }
 
 .metrics-grid {
@@ -297,20 +282,20 @@
 }
 
 .metric-card {
-  background-color: var(--agr-light-gray);
-  border: 1px solid var(--agr-border);
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 1.5rem;
   position: relative;
 }
 
 .metric-card.best-model {
-  border-color: var(--agr-success);
+  border-color: #10B981;
   background-color: #F0FDF4;
 }
 
 .metric-card h4 {
-  color: var(--agr-blue);
+  color: #1E4B9C;
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -320,8 +305,8 @@
   position: absolute;
   top: -8px;
   right: 1rem;
-  background-color: var(--agr-success);
-  color: var(--agr-white);
+  background-color: #10B981;
+  color: #FFFFFF;
   font-size: 0.75rem;
   font-weight: 500;
   padding: 0.25rem 0.5rem;
@@ -334,7 +319,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--agr-border);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .metric-item:last-child {
@@ -342,31 +327,31 @@
 }
 
 .metric-item span:first-child {
-  color: var(--agr-gray);
+  color: #64748B;
   font-size: 0.9rem;
 }
 
 .metric-item span:last-child {
-  color: var(--agr-dark);
+  color: #2C3E50;
   font-weight: 500;
 }
 
 /* Trend Analysis */
 .trend-analysis {
-  background-color: var(--agr-white);
-  border: 1px solid var(--agr-border);
+  background-color: #FFFFFF;
+  border: 1px solid #E2E8F0;
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .trend-analysis h3 {
-  color: var(--agr-blue);
+  color: #1E4B9C;
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 1.5rem 0;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid var(--agr-border);
+  border-bottom: 2px solid #E2E8F0;
 }
 
 .analysis-grid {
@@ -376,14 +361,14 @@
 }
 
 .analysis-card {
-  background-color: var(--agr-light-gray);
-  border: 1px solid var(--agr-border);
+  background-color: #F8FAFC;
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 1.5rem;
 }
 
 .analysis-card h4 {
-  color: var(--agr-blue);
+  color: #1E4B9C;
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -394,7 +379,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid var(--agr-border);
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .trend-item:last-child {
@@ -402,35 +387,35 @@
 }
 
 .trend-item span:first-child {
-  color: var(--agr-gray);
+  color: #64748B;
   font-size: 0.9rem;
 }
 
 .trend-item span:last-child {
-  color: var(--agr-dark);
+  color: #2C3E50;
   font-weight: 500;
 }
 
 .trend-increasing {
-  color: var(--agr-success) !important;
+  color: #10B981 !important;
 }
 
 .trend-decreasing {
-  color: var(--agr-error) !important;
+  color: #EF4444 !important;
 }
 
 .trend-stable {
-  color: var(--agr-warning) !important;
+  color: #F59E0B !important;
 }
 
 .yearly-breakdown {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid var(--agr-border);
+  border-top: 1px solid #E2E8F0;
 }
 
 .yearly-breakdown strong {
-  color: var(--agr-blue);
+  color: #1E4B9C;
   font-size: 0.9rem;
   display: block;
   margin-bottom: 0.5rem;
@@ -444,12 +429,12 @@
 }
 
 .year-item span:first-child {
-  color: var(--agr-gray);
+  color: #64748B;
   font-weight: 500;
 }
 
 .year-item span:last-child {
-  color: var(--agr-dark);
+  color: #2C3E50;
 }
 
 /* Seasonal Insights */
@@ -460,7 +445,7 @@
 }
 
 .seasonal-lists strong {
-  color: var(--agr-blue);
+  color: #1E4B9C;
   font-size: 0.9rem;
   display: block;
   margin-bottom: 0.5rem;
@@ -475,8 +460,8 @@
 .seasonal-lists li {
   padding: 0.25rem 0;
   font-size: 0.85rem;
-  color: var(--agr-dark);
-  border-bottom: 1px solid var(--agr-border);
+  color: #2C3E50;
+  border-bottom: 1px solid #E2E8F0;
 }
 
 .seasonal-lists li:last-child {
@@ -488,26 +473,26 @@
   .forecast-page {
     padding: 1rem;
   }
-  
+
   .page-header h1 {
     font-size: 2rem;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .forecast-info {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .metrics-grid,
   .analysis-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .seasonal-lists {
     grid-template-columns: 1fr;
   }
@@ -518,7 +503,7 @@
   .spinner {
     animation: none;
   }
-  
+
   * {
     transition: none !important;
   }
@@ -528,6 +513,6 @@
 button:focus-visible,
 select:focus-visible,
 input:focus-visible {
-  outline: 2px solid var(--agr-blue);
+  outline: 2px solid #1E4B9C;
   outline-offset: 2px;
 }

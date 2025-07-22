@@ -226,15 +226,7 @@ const resetSelection = () => {
       {error && <div className="error-message">{error}</div>}
 
       <div className="company-selection">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search companies..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
+      
 
         <div className="select-container">
           <select
@@ -262,24 +254,22 @@ const resetSelection = () => {
           >
             {loading ? 'Analyzing...' : 'Analyze Company'}
           </button>
-
-          
-         
         </div>
-        <button className="go-catalog-btn" onClick={() => navigate('/analysis-catalog')}>
-    Go to Catalog
-  </button>
+      
       </div>
 
       {showAnalysis && analysisResults && (
         <div className="analysis-section">
           <h2>Analysis for: {selectedCompany}</h2>
-          <button onClick={resetSelection} className="reset-btn">
-  Select Another Company
-</button>
-<button className="go-catalog-btn" onClick={() => navigate('/analysis-catalog')}>
+          <div className="button-row">
+  <button onClick={resetSelection} className="reset-btn">
+    Select Another Company
+  </button>
+  <button className="go-catalog-btn" onClick={() => navigate('/analysis-catalog')}>
     Go to Catalog
   </button>
+</div>
+
 
           
           <div className="analysis-grid">

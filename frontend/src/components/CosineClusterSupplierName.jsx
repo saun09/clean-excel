@@ -115,23 +115,30 @@ const CosineClusterSupplierName = () => {
       {clusteredData.length > 0 && (
         <>
         <div className = "results-section">
-          <div className ="clustered-preview">
-          <h3>Clustered Preview</h3>
-          <table className="preview-table">
-            <thead>
-              <tr>
-                {Object.keys(clusteredData[0]).map((key) => <th key={key}>{key}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {clusteredData.map((row, i) => (
-                <tr key={i}>
-                  {Object.values(row).map((val, j) => <td key={j}>{val}</td>)}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          </div>
+         <div className="clustered-preview-card">
+  <h3>Clustered Preview</h3>
+  <div className="scrollable-table-container">
+    <table className="preview-table">
+      <thead>
+        <tr>
+          {Object.keys(clusteredData[0]).map((key) => (
+            <th key={key}>{key}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {clusteredData.map((row, i) => (
+          <tr key={i}>
+            {Object.values(row).map((val, j) => (
+              <td key={j}>{val}</td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+
           </div>
 
           <div className="suggestions-section">
@@ -175,25 +182,22 @@ const CosineClusterSupplierName = () => {
 </div>
 
 
+      <div className="button-row">
+  <button onClick={() => navigate('/cluster/importer-name')}>
+    ← Back to Importer Name
+  </button>
 
-        
   {downloadLink && (
-            <a className="download-link" href={downloadLink} download>
-              ⬇ Download Clustered CSV
-            </a>
-          )}
-          {/* Navigation Button */}
-      <div style={{ marginTop: "2rem", display: "flex", justifyContent: "flex-start" }}>
-        <button onClick={() => navigate('/cluster/importer-name')}>
-          ← Back to Importer Name
-        </button>
-      </div>
+    <a className="download-link primary" href={downloadLink} download>
+      Download Clustered CSV
+    </a>
+  )}
 
-      <div style={{ marginTop: "2rem", display: "flex", justifyContent: "center" }}>
   <button className="proceed-button" onClick={handleProceedToAnalysis}>
     Proceed to Analysis →
   </button>
 </div>
+
 
         </>
       )}
