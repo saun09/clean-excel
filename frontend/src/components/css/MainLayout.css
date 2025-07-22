@@ -58,3 +58,26 @@
   width: 100%;
   max-width: 100%;
 }
+
+.top-bar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+}
+
+.logout-button {
+  padding: 0.5rem 1rem;
+  background-color: #A5B4FC;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #8ea1fc;
+}

@@ -1,11 +1,12 @@
 import React from 'react';
-import { Home, Upload, Sliders, ListTree, BarChart2, Share2 } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Upload, ListTree, BarChart2, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../assets/AGRLogo.jpeg';
 import './css/Sidebar.css';
 
 const Sidebar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     {
@@ -23,9 +24,26 @@ const Sidebar = () => {
       icon: <BarChart2 size={18} />,
       to: '/analysis-catalog',
     },
-
-    
   ];
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        console.log("[DEBUG] Logout successful");
+        navigate("/login");
+      } else {
+        console.log("[DEBUG] Logout failed");
+        alert("Logout failed");
+      }
+    } catch (err) {
+      console.error("[DEBUG] Logout error:", err);
+    }
+  };
 
   return (
     <div className="sidebar">
@@ -44,6 +62,10 @@ const Sidebar = () => {
             <span>{item.label}</span>
           </Link>
         ))}
+        <button className="nav-item logout-button" onClick={handleLogout}>
+          <LogOut size={18} />
+          <span>Logout</span>
+        </button>
       </nav>
     </div>
   );

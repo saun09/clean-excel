@@ -2,7 +2,8 @@ print("importing flask")
 from flask import Flask
 from flask_cors import CORS
 from flask_session import Session
-
+from dotenv import load_dotenv
+import os
 from settings import Config
 
 print("importing upload_bp")
@@ -32,8 +33,15 @@ print("importing company_analysis_bp")
 from routes.Cluster_Analysis_routes import cluster_analysis_bp
 print("importing cluster_analysis_bp")
 
+from routes.auth_routes import login_bp
+print("importing login_bp")
 
 app = Flask(__name__)
+
+load_dotenv()  # Load from .env
+
+app.secret_key = os.getenv('FLASK_SECRET', 'fallbacksecret')  # needed for sessions
+
 app.config.from_object(Config)
 Config.init_app(app)
 print("Config loaded")
@@ -41,6 +49,8 @@ print("Config loaded")
 CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 Session(app)
 
+# Register blueprints
+app.register_blueprint(login_bp)
 app.register_blueprint(upload_bp)
 app.register_blueprint(clustering_bp)
 app.register_blueprint(export_bp)
@@ -53,3 +63,4 @@ app.register_blueprint(cluster_analysis_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
