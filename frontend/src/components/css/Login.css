@@ -1,22 +1,13 @@
-/* Login.css */
-
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(to bottom right, #e0f7fa, #f3e5f5);
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
 
 .login-container {
+  margin-top: 150px;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
   width: 100%;
 }
+
 
 .login-card {
   background: white;

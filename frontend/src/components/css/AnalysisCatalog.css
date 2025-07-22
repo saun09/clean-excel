@@ -10,7 +10,7 @@
   gap: 2rem;
   margin-top: 2rem;
   flex-wrap: wrap;
-  overflow: hidden;
+  overflow: auto;
   color: #ffffff;
 }
 

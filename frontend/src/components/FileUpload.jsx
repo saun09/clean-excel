@@ -6,11 +6,15 @@ import csvIcon from '../assets/icons/csv.png';
 import xlsxIcon from '../assets/icons/excel.png';
 import tipIcon from '../assets/icons/tip.png';
 import FlowSteps from './FlowSteps'; 
-const FileUpload = ({ onUpload }) => {
+import StandardizeCleanButton from './StandardizeCleanButton';
+
+const FileUpload = ({ onUpload = () => {} }) => {
   const [file, setFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('idle');
   const [previewData, setPreviewData] = useState([]);
+  const [uploadedFilename, setUploadedFilename] = useState(null);
+
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
@@ -57,6 +61,8 @@ const FileUpload = ({ onUpload }) => {
 
       sessionStorage.setItem("filename", response.data.filename);
       console.log("Saved filename to sessionStorage:", sessionStorage.getItem("filename"));
+      setUploadedFilename(response.data.filename);
+
 
       onUpload(response.data.filename);
     } catch (error) {
@@ -176,6 +182,16 @@ const FileUpload = ({ onUpload }) => {
 
   </>
 )}
+{uploadedFilename && (
+  <div style={{ marginTop: '20px' }}>
+    <StandardizeCleanButton
+      filename={uploadedFilename}
+      onStatusUpdate={(msg) => console.log("Status:", msg)}
+      onCleanComplete={(cleanedFile) => console.log("Cleaned File:", cleanedFile)}
+    />
+  </div>
+)}
+
 
     </div>
   );

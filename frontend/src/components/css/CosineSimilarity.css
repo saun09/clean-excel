@@ -434,8 +434,8 @@ button:hover,
 }
 
 .scrollable-table-container {
-  max-height: 400px; /* Adjust height as needed */
-  overflow: auto;
+  
+  overflow-y: auto;
   border-radius: 10px;
   border: 1px solid #e2e8f0;
 }

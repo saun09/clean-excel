@@ -30,6 +30,7 @@ const CosineClusterItemDescription = () => {
         threshold
       }, { withCredentials: true });
 
+       console.log("Clustering Response:", response.data);
       setClusteredData(response.data.clustered_preview || []);
       setDownloadLink(`http://localhost:5000/api/download/${response.data.output_file}`);
       setSuggestions(response.data.replacement_suggestions || []);
@@ -47,6 +48,7 @@ const CosineClusterItemDescription = () => {
         targetRow: suggestion.row,
         newValue: suggestion.suggested_value
       }, { withCredentials: true });
+      
 
       handleRunClustering();
     } catch {
@@ -138,6 +140,8 @@ const CosineClusterItemDescription = () => {
       <tbody>
         {suggestions.map((sug, index) => (
           <tr key={`${sug.replace.row}-${sug.replace.suggested_with_row}`} className="suggestion-row">
+
+
             <td className="row-number">{sug.replace.row}</td>
             <td className="current-value">
               <span className="value-text">{sug.replace.original}</span>
