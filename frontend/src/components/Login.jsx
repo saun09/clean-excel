@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./css/Login.css";
+import logo from "../assets/AGRLogo.jpeg";
 
 function Login({ setAuthenticated }) {
   const [username, setUsername] = useState("");
@@ -8,7 +9,6 @@ function Login({ setAuthenticated }) {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    console.log("[DEBUG] Attempting login");
     try {
       const res = await fetch("http://localhost:5000/api/login", {
         method: "POST",
@@ -19,28 +19,40 @@ function Login({ setAuthenticated }) {
         body: JSON.stringify({ username, password })
       });
 
-      console.log("[DEBUG] Response status:", res.status);
-
       if (res.ok) {
-        console.log("[DEBUG] Login success");
         setAuthenticated(true);
-        navigate("/file_upload");  //  Redirect after login success
+        navigate("/file_upload");
       } else {
         const data = await res.json();
-        console.log("[DEBUG] Login failed:", data.error);
-        alert("Invalid credentials");
+        alert(data.error || "Invalid credentials");
       }
     } catch (error) {
-      console.error("[DEBUG] Login error:", error);
+      console.error("Login error:", error);
+      alert("Something went wrong. Please try again.");
     }
   };
 
   return (
     <div className="login-container">
-      <h2>Login</h2>
-      <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Username" />
-      <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" />
-      <button onClick={handleLogin}>Login</button>
+      <div className="login-card">
+        <img src={logo} alt="AGR Logo" className="login-logo" />
+        <h1 className="product-title">Xelly</h1>
+        <h2 className="login-title">Login to your account</h2>
+        <input
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          placeholder="Username"
+          className="login-input"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          placeholder="Password"
+          className="login-input"
+        />
+        <button onClick={handleLogin} className="login-button">Login</button>
+      </div>
     </div>
   );
 }

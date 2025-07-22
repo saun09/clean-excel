@@ -1,31 +1,79 @@
+/* Login.css */
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(to bottom right, #e0f7fa, #f3e5f5);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .login-container {
-  max-width: 400px;
-  margin: 10% auto;
-  background: #f9f9f9;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.login-card {
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  width: 350px;
   text-align: center;
 }
 
-.login-container input {
-  width: 90%;
+.login-logo {
+  width: 120px;
+  height: 120px;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+}
+
+.product-title {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  color: #2C3E50;
+}
+
+.login-title {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+  color: #555;
+}
+
+.login-input {
+  width: 100%;
   padding: 0.75rem;
-  margin: 0.5rem 0;
+  margin-bottom: 1rem;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 12px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
 }
 
-.login-container button {
-  background-color: #4f46e5;
+.login-input:focus {
+  border-color: #7c4dff;
+}
+
+.login-button {
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #7c4dff, #651fff);
   color: white;
-  padding: 0.75rem 2rem;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
+  transition: background 0.3s;
 }
 
-.error {
-  color: rgb(255, 0, 0);
-  margin-top: 1rem;
+.login-button:hover {
+  background: linear-gradient(135deg, #5e35b1, #4527a0);
 }

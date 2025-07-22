@@ -8,16 +8,21 @@ def check_login():
     password = data.get("password")
     print(f"[DEBUG] Provided credentials - Username: {username}, Password: {password}")
 
-    expected_user = os.getenv("LOGIN_USERNAME")
-    expected_pass = os.getenv("LOGIN_PASSWORD")
-    print(f"[DEBUG] Expected credentials - Username: {expected_user}, Password: {expected_pass}")
+    # Check against all LOGIN_USERNAME_X and LOGIN_PASSWORD_X from env
+    for i in range(1, 10):  # Supports up to 9 users; extend if needed
+        expected_user = os.getenv(f"LOGIN_USERNAME_{i}")
+        expected_pass = os.getenv(f"LOGIN_PASSWORD_{i}")
 
-    if username == expected_user and password == expected_pass:
-        session["logged_in"] = True
-        print("[DEBUG] Login successful")
-        return jsonify({"message": "Login successful"}), 200
-    else:
-        print("[DEBUG] Invalid credentials")
-        print("[DEBUG] Loaded from env - USER:", os.getenv('LOGIN_USERNAME'), "PASS:", os.getenv('LOGIN_PASSWORD'))
+        if expected_user is None or expected_pass is None:
+            continue  # Skip if not defined
 
-        return jsonify({"error": "Invalid credentials"}), 401
+        print(f"[DEBUG] Checking against - Username: {expected_user}")
+
+        if username == expected_user and password == expected_pass:
+            session["logged_in"] = True
+            session["user"] = username
+            print("[DEBUG] Login successful")
+            return jsonify({"message": "Login successful"}), 200
+
+    print("[DEBUG] Invalid credentials for all users")
+    return jsonify({"error": "Invalid credentials"}), 401

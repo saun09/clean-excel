@@ -1,1 +1,80 @@
 .env
+
+# ======================
+# Global ignores
+# ======================
+*.log
+*.tmp
+*.bak
+*.swp
+.DS_Store
+Thumbs.db
+
+# ======================
+# Python backend ignores
+# ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Ignore Python virtual environments
+env/
+venv/
+ENV/
+.venv/
+
+# Ignore Flask instance folder or uploads
+instance/
+uploads/
+*.sqlite3
+
+# Local environment files
+.env
+
+# Bytecode cache
+*.pycache/
+
+# ======================
+# Node/React frontend ignores
+# ======================
+# Dependency directories
+node_modules/
+
+# Build output
+build/
+dist/
+
+# Local env vars
+frontend/.env
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# React testing
+frontend/coverage/
+frontend/.eslintcache
+
+# Misc cache
+frontend/.parcel-cache/
+frontend/.turbo/
+
+# ======================
+# VSCode & Editor-specific ignores
+# ======================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ======================
+# Git & System-specific ignores
+# ======================
+*.orig
+*.rej
+*.swp
+*.swo
+*~
+*.bak
