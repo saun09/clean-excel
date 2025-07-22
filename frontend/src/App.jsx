@@ -20,7 +20,7 @@ import CompanyAnalysis from './components/CompanyAnalysis';
 import ClusterAnalysisPage from './components/ClusterAnalysisPage';
 import './App.css';
 import ComparativeAnalysis from './components/ComparativeAnalysis';
-
+import FlowSteps from './components/FlowSteps';
 function Home() {
   const [uploadedFileName, setUploadedFileName] = useState(null);
   const [cleaningStatus, setCleaningStatus] = useState(null);
@@ -63,6 +63,16 @@ export default function App() {
             <ClusterPage />
           </MainLayout>
         } /> */}
+        <Route path="flow-steps" element={
+          <MainLayout>
+            <FlowSteps />
+          </MainLayout>
+        } />
+
+        
+
+
+
          <Route path="standardize-btn" element={
           <MainLayout>
             <StandardizeCleanButton />
@@ -102,23 +112,23 @@ export default function App() {
           </MainLayout>
         } />
 
-        <Route path="/analytics/comparative-analysis" element={
+     {/*    <Route path="/analytics/comparative-analysis" element={
           <MainLayout>
             <ComparativeAnalysis />
           </MainLayout>
-        } />
+        } /> */}
 
         <Route path="/analytics/company-analysis" element={
           <MainLayout>
             <CompanyAnalysis />
           </MainLayout>
         } />
-
+{/* 
         <Route path="/analytics/cluster-summary" element={
           <MainLayout>
             <ClusterAnalysisPage />
           </MainLayout>
-        } />
+        } /> */}
 
          <Route path="/cluster/item-description" element={<CosineClusterItemDescription />} />
         <Route path="/cluster/importer-name" element={<CosineClusterImporterName />} />

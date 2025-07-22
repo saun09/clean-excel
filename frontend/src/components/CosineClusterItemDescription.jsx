@@ -54,9 +54,9 @@ const CosineClusterItemDescription = () => {
     }
   };
 
-  if (!cleanedFilename) {
+ /*  if (!cleanedFilename) {
     return <div className="cosine-similarity-container">⚠️ No cleaned file found. Please upload and clean a file first.</div>;
-  }
+  } */
 
   return (
     <div className="cosine-similarity-container">

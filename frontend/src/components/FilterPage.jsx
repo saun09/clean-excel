@@ -236,7 +236,7 @@ const FilterPage = () => {
         column_mappings: columnMappings
       };
 
-      console.log('🔍 Analyzing with payload:', payload);
+      console.log(' Analyzing with payload:', payload);
 
       const response = await axios.post('http://localhost:5000/api/analyze-filtered', payload, {
         headers: { 
@@ -259,7 +259,7 @@ const FilterPage = () => {
           parsedData = response.data;
         }
       } catch (parseError) {
-        console.error('❌ Failed to parse response data:', parseError);
+        console.error(' Failed to parse response data:', parseError);
         throw new Error('Invalid response format from server');
       }
       
@@ -271,14 +271,14 @@ const FilterPage = () => {
       if (success && hasResults) {
         setAnalysisResults(results);
         setError('');
-        console.log('✅ Analysis results set successfully');
+        console.log(' Analysis results set successfully');
       } else {
         setAnalysisResults(null);
         setError(message || 'Analysis completed but no results found');
       }
 
     } catch (err) {
-      console.error('❌ Analysis failed:', err);
+      console.error('Analysis failed:', err);
       setAnalysisResults(null);
       setError(err.response?.data?.error || err.message || 'Analysis failed');
     } finally {

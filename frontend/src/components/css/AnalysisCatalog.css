@@ -11,6 +11,7 @@
   margin-top: 2rem;
   flex-wrap: wrap;
   overflow: hidden;
+  color: #ffffff;
 }
 
 .analysis-card {
@@ -38,7 +39,7 @@
 }
 
 .analysis-card h3 {
-  margin: 0;
+  margin: 5;
   color: #1a202c;
   font-size: 1.1rem;
 }
@@ -47,4 +48,51 @@
   font-size: 0.9rem;
   color: #4a5568;
   margin: 0;
+}
+
+.catalog-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+  background: linear-gradient(135deg, rgba(139, 69, 19, 0.05), rgba(255, 182, 193, 0.1), rgba(221, 160, 221, 0.1));
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.catalog-header {
+  height: 200px;
+  /*background-image: url('../../assets/pastel-graph.jpg');*/
+  background-color: #effcec;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 20px;
+  padding: 4rem 2rem;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+
+
+.catalog-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2d3748;
+  margin: 0 0 1rem 0;
+   margin-top: -15px;
+  position: relative;
+  z-index: 1;
+}
+
+.catalog-subtitle {
+  font-size: 1.1rem;
+  color: #718096;
+  max-width: 600px;
+  margin: 0 auto;
+  margin-top: -10px;
+  line-height: 1.6;
+  position: relative;
+  z-index: 1;
 }

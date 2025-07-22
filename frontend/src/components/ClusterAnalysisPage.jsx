@@ -135,7 +135,7 @@ const ClusterAnalysisPage = () => {
 
       <div className="column-selection">
         <div className="recommended-columns">
-          <h4>📊 Recommended for Trade Analysis</h4>
+          <h4>Recommended for Trade Analysis</h4>
           <p>These columns work well for finding patterns in trade data</p>
           <div className="column-grid">
             {targetColumns.map(column => {
@@ -164,7 +164,7 @@ const ClusterAnalysisPage = () => {
         </div>
 
         <div className="all-columns">
-          <h4>🗂️ All Available Columns</h4>
+          <h4> All Available Columns</h4>
           <div className="column-list">
             {availableColumns.map(column => {
               const isSelected = selectedColumns.includes(column);
@@ -188,7 +188,7 @@ const ClusterAnalysisPage = () => {
       </div>
 
       <div className="analysis-settings">
-        <h4>⚙️ Analysis Settings</h4>
+        <h4>Analysis Settings</h4>
         <div className="setting-group">
           <label>How many groups do you want to find?</label>
           <select value={nClusters} onChange={(e) => setNClusters(parseInt(e.target.value))}>
@@ -222,27 +222,27 @@ const ClusterAnalysisPage = () => {
   const renderResults = () => (
     <div className="results-container">
       <div className="results-header">
-        <h3>📈 Your Data Analysis Results</h3>
+        <h3> Your Data Analysis Results</h3>
         <p>We found {clusterResults?.n_clusters} distinct groups in your data</p>
       </div>
 
       <div className="summary-cards">
         <div className="summary-card">
-          <div className="card-icon">👥</div>
+          <div className="card-icon"></div>
           <div className="card-content">
             <div className="card-number">{clusterResults?.n_clusters}</div>
             <div className="card-label">Groups Found</div>
           </div>
         </div>
         <div className="summary-card">
-          <div className="card-icon">📊</div>
+          <div className="card-icon"></div>
           <div className="card-content">
             <div className="card-number">{clusterResults?.total_records?.toLocaleString()}</div>
             <div className="card-label">Records Analyzed</div>
           </div>
         </div>
         <div className="summary-card">
-          <div className="card-icon">🏷️</div>
+          <div className="card-icon"></div>
           <div className="card-content">
             <div className="card-number">{clusterResults?.features_used?.length}</div>
             <div className="card-label">Data Fields Used</div>
@@ -252,7 +252,7 @@ const ClusterAnalysisPage = () => {
 
       {/* Group Size Distribution */}
       <div className="chart-section">
-        <h4>📊 Group Size Distribution</h4>
+        <h4>Group Size Distribution</h4>
         <div className="chart-container">
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -283,7 +283,7 @@ const ClusterAnalysisPage = () => {
       {/* Trend Analysis */}
       {clusterResults?.trend_analysis && (
         <div className="chart-section">
-          <h4>📈 Monthly Trends by Group</h4>
+          <h4> Monthly Trends by Group</h4>
           <div className="chart-container">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={clusterResults.trend_analysis}>
@@ -310,7 +310,7 @@ const ClusterAnalysisPage = () => {
       {/* Overall Statistics */}
       {clusterResults?.overall_statistics && Object.keys(clusterResults.overall_statistics).length > 0 && (
         <div className="stats-section">
-          <h4>📋 Overall Statistics</h4>
+          <h4>Overall Statistics</h4>
           <div className="stats-grid">
             {Object.entries(clusterResults.overall_statistics).map(([column, stats]) => (
               <div key={column} className="stat-card">
@@ -337,7 +337,7 @@ const ClusterAnalysisPage = () => {
 
       {/* Group Details */}
       <div className="groups-section">
-        <h4>🏷️ Group Characteristics</h4>
+        <h4> Group Characteristics</h4>
         <div className="group-cards">
           {clusterResults?.cluster_summary?.map((cluster, index) => (
             <div key={cluster.cluster_id} className="group-card">
@@ -399,7 +399,7 @@ const ClusterAnalysisPage = () => {
   return (
     <div className="cluster-analysis-page">
       <div className="page-header">
-        <h1>🔍 Smart Data Grouping</h1>
+        <h1> Smart Data Grouping</h1>
         <p>Find hidden patterns and groups in your trade data - no technical knowledge required!</p>
       </div>
 
@@ -407,7 +407,7 @@ const ClusterAnalysisPage = () => {
 
       {error && (
         <div className="error-banner">
-          <span>⚠️ {error}</span>
+          <span> {error}</span>
           <button onClick={() => setError('')}>×</button>
         </div>
       )}

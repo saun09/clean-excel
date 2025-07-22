@@ -69,50 +69,40 @@ body, html {
   margin-top: 0.25rem;
 }
 
+.action-buttons {
+  border-radius: 8px;
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
 /* Buttons */
 .analyze-btn,
 .go-catalog-btn,
-.reset-btn,
-button {
+.reset-btn {
   background-color: #a5b4fc;
   color: #ffffff;
   border: none;
-  padding: 0 1.5rem;
-  height: 48px;
-  min-width: 140px;
+  padding: 0.75rem 1.5rem;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
   box-shadow: 0 4px 14px rgba(165, 180, 252, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .analyze-btn:hover,
 .go-catalog-btn:hover,
-.reset-btn:hover,
-button:hover {
+.reset-btn:hover {
   background-color: #818cf8;
   transform: translateY(-1px);
 }
 
-.analyze-btn:disabled,
-.go-catalog-btn:disabled,
-.reset-btn:disabled,
-button:disabled {
+.analyze-btn:disabled {
   background-color: #d1d5db;
   cursor: not-allowed;
-}
-
-/* Button Layout */
-.action-buttons {
-  margin-top: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
 }
 
 .button-row {
@@ -123,6 +113,7 @@ button:disabled {
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
+
 
 /* Error Message */
 .error-message {
@@ -264,9 +255,8 @@ button:disabled {
 .data-table td {
   padding: 0.75rem 1rem;
   text-align: left;
-  border: 1px solid #e5e7eb; /* full grid lines */
+  border-bottom: 1px solid #e5e7eb;
 }
-
 
 .data-table th {
   background-color: #f3f4f6;

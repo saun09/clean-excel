@@ -53,7 +53,7 @@ def load_comparative_options():
             items = df['Item_Description'].dropna().unique().tolist()
             options['item_descriptions'] = sorted(items)
 
-        print(f"✅ Comparative options loaded for {len(df)} records")
+        print(f" Comparative options loaded for {len(df)} records")
         print(f"Available columns: {df.columns.tolist()}")
         print(f"Options: {options}")
 
@@ -63,7 +63,7 @@ def load_comparative_options():
             'message': 'Comparative analysis options loaded successfully'
         })
     except Exception as e:
-        print(f"❌ Error loading comparative options: {str(e)}")
+        print(f" Error loading comparative options: {str(e)}")
         return jsonify({'error': f'Failed to load comparative options: {str(e)}'}), 500
 
 @comparative_bp.route('/api/perform-comparative-analysis', methods=['POST'])
@@ -98,7 +98,7 @@ def perform_comparative_analysis():
         if not item_description_2:
             return jsonify({'error': 'Please select Item Description 2'}), 400
 
-        print(f"🔍 Performing comparative analysis:")
+        print(f"Performing comparative analysis:")
         print(f"Years: {selected_years}")
         print(f"Time Period: {time_period_type} - {selected_quarter_or_month}")
         print(f"HS Code: {selected_hscode}")
@@ -167,7 +167,7 @@ def perform_comparative_analysis():
         json_str = json.dumps(cleaned_results, default=str)
         cleaned_results = json.loads(json_str)
 
-        print(f"✅ Comparative analysis completed")
+        print(f"Comparative analysis completed")
         print(f"Item 1 total: {summary['item_1']['total_quantity']}")
         print(f"Item 2 total: {summary['item_2']['total_quantity']}")
 
@@ -178,7 +178,7 @@ def perform_comparative_analysis():
         })
 
     except Exception as e:
-        print(f"❌ Comparative analysis error: {str(e)}")
+        print(f"Comparative analysis error: {str(e)}")
         return jsonify({
             'success': False,
             'error': f'Comparative analysis failed: {str(e)}'

@@ -45,12 +45,12 @@ export default function AnalysisCatalogPage() {
       icon: <LineChart size={28} />,
       route: '/analytics/forecast',
     },
-    {
+   /*  {
       title: 'Comparative Quantity Analysis',
       description: 'Compare quarters, months or years for products.',
       icon: <BarChart3 size={28} />,
       route: '/analytics/comparative-analysis', // Updated route to match new structure
-    },
+    }, */
     {
       title: 'Analysis Company Wise',
       description: 'Break down key metrics by company.',
@@ -63,12 +63,12 @@ export default function AnalysisCatalogPage() {
       icon: <HelpCircle size={28} />,
       route: '/business-questions',
     }, */
-    {
+ /*    {
       title: 'Cluster Summary',
       description: 'Get cluster-level record counts, sums, averages.',
       icon: <FolderKanban size={28} />,
       route: '/analytics/cluster-summary',
-    },
+    }, */
     /* {
       title: 'Top Clusters',
       description: 'Rank clusters by volume, value or quantity.',
@@ -92,6 +92,12 @@ export default function AnalysisCatalogPage() {
 
   return (
     <div className="analysis-catalog-container">
+      <div className="catalog-header">
+  <h1 className="catalog-title">Analysis Catalog</h1>
+  <p className="catalog-subtitle">
+    Comprehensive Data Insights
+  </p>
+</div>
       <h2>Select Type of Analysis</h2>
       <p style={{ fontSize: '0.95rem', marginBottom: '1rem' }}>
         You can now perform deeper insights using your clustered trade data.

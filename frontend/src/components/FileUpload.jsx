@@ -5,7 +5,7 @@ import './css/FileUpload.css';
 import csvIcon from '../assets/icons/csv.png';
 import xlsxIcon from '../assets/icons/excel.png';
 import tipIcon from '../assets/icons/tip.png';
-
+import FlowSteps from './FlowSteps'; 
 const FileUpload = ({ onUpload }) => {
   const [file, setFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -68,6 +68,7 @@ const FileUpload = ({ onUpload }) => {
   return (
     <div className="upload-container">
       <div className="upload-header">
+        <FlowSteps />
         <h1>Upload Trade Data</h1>
         <p>Import your trade data files (.csv, .xlsx) to begin analysis</p>
       </div>

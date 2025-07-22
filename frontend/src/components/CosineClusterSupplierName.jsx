@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './css/CosineSimilarity.css';
 import { useLocation } from 'react-router-dom';
-
-import { useNavigate } from 'react-router-dom'; // ✅ REQUIRED for navigation
-
+import { useNavigate } from 'react-router-dom'; // REQUIRED for navigation
 const CosineClusterSupplierName = () => {
   const location = useLocation();
   const cleanedFilename = location.state?.cleanedFilename || sessionStorage.getItem("df_cleaned");
@@ -63,7 +61,7 @@ const CosineClusterSupplierName = () => {
   }
 
  /*  const handleProceedToAnalysis = () => {
-  sessionStorage.setItem("clusterColumn", selectedColumn); // ✅ Save for FilterPage too
+  sessionStorage.setItem("clusterColumn", selectedColumn); // Save for FilterPage too
   navigate('/analysis-catalog');
 };
  */
