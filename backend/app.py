@@ -46,7 +46,19 @@ app.config.from_object(Config)
 Config.init_app(app)
 print("Config loaded")
 
-CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+# Updated CORS configuration for production
+frontend_url = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+allowed_origins = [frontend_url, "http://localhost:3000"]
+
+# If FRONTEND_URL is not set, allow common Render patterns
+if 'FRONTEND_URL' not in os.environ:
+    allowed_origins.extend([
+        "https://*.onrender.com",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+    ])
+
+CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": allowed_origins}})
 Session(app)
 
 # Register blueprints
@@ -62,5 +74,12 @@ app.register_blueprint(company_bp)
 app.register_blueprint(cluster_analysis_bp)
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    # Production-ready configuration
+    port = int(os.environ.get('PORT', 5000))
+    debug_mode = os.getenv('FLASK_ENV') == 'development'
+    
+    print(f"Starting Flask app on port {port}")
+    print(f"Debug mode: {debug_mode}")
+    print(f"Allowed CORS origins: {allowed_origins}")
+    
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)
