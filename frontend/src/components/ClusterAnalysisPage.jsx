@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import './css/ClusterAnalysisPage.css';
-
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const ClusterAnalysisPage = () => {
   const navigate = useNavigate();
   const [availableColumns, setAvailableColumns] = useState([]);

@@ -24,7 +24,7 @@ const CosineClusterImporterName = () => {
     setSuggestions([]);
 
     try {
-      const response = await axios.post('${API_BASE_URL}/api/cosine_cluster', {
+      const response = await axios.post(`${API_BASE_URL}/api/cosine_cluster`, {
         filename: cleanedFilename,
         column: selectedColumn,
         threshold
@@ -41,7 +41,7 @@ const CosineClusterImporterName = () => {
 
   const handleAcceptSuggestion = async (suggestion) => {
     try {
-      await axios.post('${API_BASE_URL}/api/apply_replacement', {
+      await axios.post(`${API_BASE_URL}/api/apply_replacement`, {
         filename: cleanedFilename,
         column: selectedColumn,
         targetRow: suggestion.row,

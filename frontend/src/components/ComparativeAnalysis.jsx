@@ -71,7 +71,7 @@ const ComparativeAnalysis = () => {
       setLoading(true);
       setError('');
       
-      const response = await axios.post('http://localhost:5000/api/load-comparative-options', {
+      const response = await axios.post(`${API_BASE_URL}/api/load-comparative-options`, {
         filename: clusteredFilename
       });
 
@@ -138,7 +138,7 @@ const ComparativeAnalysis = () => {
 
       console.log('Sending comparative analysis payload:', payload);
 
-      const response = await axios.post('${API_BASE_URL}/api/perform-comparative-analysis', payload, {
+      const response = await axios.post(`${API_BASE_URL}/api/perform-comparative-analysis`, payload, {
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'

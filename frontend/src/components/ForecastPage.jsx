@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import './css/ForecastAnalysis.css';
 import { useNavigate } from 'react-router-dom';
+
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const ForecastPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -35,8 +38,8 @@ const ForecastPage = () => {
     setError('');
     
     try {
-      // Fixed route name to match Flask route
-      const response = await fetch('/api/load-forecast-options', {
+      // FIXED: Using backticks for template literal
+      const response = await fetch(`${API_BASE_URL}/api/load-forecast-options`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ filename: clusteredFilename })
@@ -79,7 +82,8 @@ const ForecastPage = () => {
     setError('');
     
     try {
-      const response = await fetch('/api/get-products-by-company', {
+      // FIXED: Using backticks for template literal
+      const response = await fetch(`${API_BASE_URL}/api/get-products-by-company`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
@@ -125,8 +129,8 @@ const ForecastPage = () => {
     setError('');
     
     try {
-      // Fixed route name - use hyphen not underscore
-      const response = await fetch('/api/generate-forecast', {
+      // FIXED: Using backticks and full API URL
+      const response = await fetch(`${API_BASE_URL}/api/generate-forecast`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
