@@ -4,6 +4,7 @@ import './css/ComparativeAnalysis.css';
 import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 import Plot from 'react-plotly.js';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const ComparativeAnalysis = () => {
   const [loading, setLoading] = useState(false);
@@ -135,9 +136,9 @@ const ComparativeAnalysis = () => {
         item_description_2: selectedFilters.itemDescription2
       };
 
-      console.log('🔍 Sending comparative analysis payload:', payload);
+      console.log('Sending comparative analysis payload:', payload);
 
-      const response = await axios.post('http://localhost:5000/api/perform-comparative-analysis', payload, {
+      const response = await axios.post('${API_BASE_URL}/api/perform-comparative-analysis', payload, {
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -147,13 +148,13 @@ const ComparativeAnalysis = () => {
       if (response.data?.success) {
         setAnalysisResults(response.data.results);
         setError('');
-        console.log('✅ Comparative analysis completed');
+        console.log(' Comparative analysis completed');
       } else {
         setError(response.data?.error || 'Analysis failed');
       }
 
     } catch (err) {
-      console.error('❌ Comparative analysis failed:', err);
+      console.error(' Comparative analysis failed:', err);
       setError(err.response?.data?.error || err.message || 'Analysis failed');
     } finally {
       setLoading(false);

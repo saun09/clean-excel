@@ -3,6 +3,7 @@ import { Upload, ListTree, BarChart2, LogOut } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../assets/AGRLogo.jpeg';
 import './css/Sidebar.css';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -28,7 +29,7 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/logout", {
+      const res = await fetch("${API_BASE_URL}/api/logout", {
         method: "POST",
         credentials: "include",
       });

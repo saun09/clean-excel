@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom'; // ADD THIS
 
 import './css/ClusterPage.css';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 export default function ClusterPage() {
 /*   const location = useLocation();
@@ -25,7 +26,7 @@ export default function ClusterPage() {
     // Fetch headers of the cleaned file
     if (cleanedName) {
       axios
-        .get(`http://localhost:5000/api/headers/${cleanedName}`)
+        .get(`${API_BASE_URL}/api/headers/${cleanedName}`)
         .then((res) => setColumns(res.data.headers))
         .catch(() => setColumns([]));
     }
@@ -41,7 +42,7 @@ const handleCluster = async () => {
   filename: sessionStorage.getItem("df_cleaned"),
 });
 
-    const res = await axios.post('http://localhost:5000/api/cluster', {
+    const res = await axios.post('${API_BASE_URL}/api/cluster', {
       filename: cleanedName,
       column: column,
     });
@@ -55,7 +56,7 @@ const handleCluster = async () => {
 
      
 
-    const excelRes = await axios.post('http://localhost:5000/api/export-colored-excel', {
+    const excelRes = await axios.post('${API_BASE_URL}/api/export-colored-excel', {
       filename: clustered_filename,
       cluster_column: column,
       
@@ -163,14 +164,14 @@ const handleCluster = async () => {
             ))}
           </tbody>
         </table>
-        <a href={`http://localhost:5000/api/download/${clusteredFile}`} download>
+        <a href={`${API_BASE_URL}/api/download/${clusteredFile}`} download>
           ⬇ Download Clustered CSV
         </a>
         {excelReady && (
           <div className="excel-notification">
             <p>Color-coded Excel is ready!</p>
             <a
-              href={`http://localhost:5000/api/download/${excelFile}`}
+              href={`${API_BASE_URL}/api/download/${excelFile}`}
               download
               className="excel-download-btn"
             >
