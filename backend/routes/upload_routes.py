@@ -74,10 +74,10 @@ def standardize_data():
         df_cleaned = clean_standardize_data(df)
         
         save_df_to_session("cleaned_df", df_cleaned)
-        print("✅ Stored df in session:", session.get("cleaned_df") is not None)
-        print("🔑 Session keys:", list(session.keys()))
+        print(" Stored df in session:", session.get("cleaned_df") is not None)
+        print(" Session keys:", list(session.keys()))
        
-        print("✅✅ After saving: Session keys:", list(session.keys()))
+        print("After saving: Session keys:", list(session.keys()))
 
 
         cleaned_filename = f"cleaned_{filename.rsplit('.', 1)[0]}.csv"

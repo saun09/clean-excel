@@ -3,8 +3,6 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import './css/ForecastAnalysis.css';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
 const ForecastPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,6 +18,7 @@ const ForecastPage = () => {
   const [selectedProduct, setSelectedProduct] = useState('');
   const [selectedColumn, setSelectedColumn] = useState('');
   const navigate = useNavigate();
+  
   // Results state
   const [forecastResults, setForecastResults] = useState(null);
   
@@ -38,29 +37,27 @@ const ForecastPage = () => {
     setError('');
     
     try {
-      // FIXED: Using backticks for template literal
-      const response = await fetch(`${API_BASE_URL}/api/load-forecast-options`, {
+      const response = await fetch('/api/load-forecast-options', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({ filename: clusteredFilename })
       });
       
-      // Check if response is ok before parsing JSON
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const contentType = response.headers.get("content-type");
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Response is not JSON - likely a 404 or server error");
+        const errorText = await response.text();
+        console.error('Load forecast options error response:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
       
       const data = await response.json();
       
       if (data.success) {
-        setCompanies(data.companies);
-        setForecastColumns(data.forecast_columns);
-        setYears(data.years);
+        setCompanies(data.companies || []);
+        setForecastColumns(data.forecast_columns || []);
+        setYears(data.years || []);
       } else {
         setError(data.error || 'Failed to load forecast options');
       }
@@ -82,10 +79,12 @@ const ForecastPage = () => {
     setError('');
     
     try {
-      // FIXED: Using backticks for template literal
-      const response = await fetch(`${API_BASE_URL}/api/get-products-by-company`, {
+      const response = await fetch('/api/get-products-by-company', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({ 
           filename: clusteredFilename,
           company_name: companyName 
@@ -93,13 +92,15 @@ const ForecastPage = () => {
       });
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Load products error response:', errorText);
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
       
       const data = await response.json();
       
       if (data.success) {
-        setProducts(data.products);
+        setProducts(data.products || []);
       } else {
         setError(data.error || 'Failed to load products');
       }
@@ -116,7 +117,9 @@ const ForecastPage = () => {
     setSelectedCompany(company);
     setSelectedProduct('');
     setProducts([]);
-    loadProductsByCompany(company);
+    if (company) {
+      loadProductsByCompany(company);
+    }
   };
 
   const generateForecast = async () => {
@@ -125,27 +128,57 @@ const ForecastPage = () => {
       return;
     }
     
+    if (!clusteredFilename) {
+      setError('No clustered file found. Please run clustering analysis first.');
+      return;
+    }
+    
     setLoading(true);
     setError('');
     
     try {
-      // FIXED: Using backticks and full API URL
-      const response = await fetch(`${API_BASE_URL}/api/generate-forecast`, {
+      const requestData = {
+        filename: clusteredFilename,
+        company_name: selectedCompany,
+        product_name: selectedProduct,
+        forecast_column: selectedColumn
+      };
+
+      console.log("Sending forecast request with:", requestData);
+
+      const response = await fetch('/api/generate-forecast', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          filename: clusteredFilename,
-          company_name: selectedCompany,
-          product_name: selectedProduct,
-          forecast_column: selectedColumn
-        })
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(requestData)
       });
-      
+
+      console.log("Response status:", response.status);
+      console.log("Response ok:", response.ok);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorText = await response.text();
+          console.error("Error response body:", errorText);
+          
+          // Try to parse as JSON to get more detailed error
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.error || errorData.message || errorText;
+          } catch {
+            errorMessage = errorText || errorMessage;
+          }
+        } catch (textError) {
+          console.error("Could not read error response:", textError);
+        }
+        throw new Error(errorMessage);
       }
       
       const data = await response.json();
+      console.log("Forecast response data:", data);
       
       if (data.success) {
         setForecastResults(data);
@@ -170,7 +203,8 @@ const ForecastPage = () => {
       date,
       actual: historical_data.actual_values[index],
       linear: historical_data.linear_predictions[index],
-      polynomial: historical_data.polynomial_predictions[index]
+      polynomial: historical_data.polynomial_predictions[index],
+      ...(historical_data.prophet_predictions && { prophet: historical_data.prophet_predictions[index] })
     }));
     
     const forecastData = forecast_data.dates.map((date, index) => ({
@@ -232,7 +266,6 @@ const ForecastPage = () => {
       <div className="page-header">
         <h1>Forecast Analysis</h1>
         <p>Generate detailed forecasts and trend analysis for the next 2 years</p>
-         
       </div>
 
       {error && (
@@ -310,11 +343,15 @@ const ForecastPage = () => {
               onClick={generateForecast}
               disabled={loading || !selectedCompany || !selectedProduct || !selectedColumn}
             >
-              Generate 2-Year Forecast
+              {loading ? 'Generating...' : 'Generate 2-Year Forecast'}
             </button>
 
-            <button className="go-catalog-btn" onClick={() => navigate('/analysis-catalog')}>
-            Go to Catalog
+            <button 
+              className="go-catalog-btn" 
+              onClick={() => navigate('/analysis-catalog')}
+              disabled={loading}
+            >
+              Go to Catalog
             </button>
           </div>
         </div>
@@ -347,6 +384,9 @@ const ForecastPage = () => {
                 <Line type="monotone" dataKey="actual" stroke="#8884d8" name="Actual" strokeWidth={2} />
                 <Line type="monotone" dataKey="linear" stroke="#82ca9d" name="Linear Model" strokeDasharray="5 5" />
                 <Line type="monotone" dataKey="polynomial" stroke="#ffc658" name="Polynomial Model" strokeDasharray="5 5" />
+                {historicalData[0]?.prophet && (
+                  <Line type="monotone" dataKey="prophet" stroke="#8dd1e1" name="Prophet Model" strokeDasharray="3 3" />
+                )}
                 <Line type="monotone" dataKey="forecast" stroke="#ff7300" name="2-Year Forecast" strokeWidth={3} />
               </LineChart>
             </ResponsiveContainer>
@@ -394,18 +434,20 @@ const ForecastPage = () => {
           </div>
 
           {/* Seasonal Analysis */}
-          <div className="chart-section">
-            <h3>Seasonal Pattern Analysis</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={seasonalData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {seasonalData.length > 0 && (
+            <div className="chart-section">
+              <h3>Seasonal Pattern Analysis</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={seasonalData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#8884d8" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
 
           {/* Detailed Trend Analysis */}
           <div className="trend-analysis">
@@ -419,10 +461,12 @@ const ForecastPage = () => {
                     {forecastResults.trend_analysis.historical_trend.charAt(0).toUpperCase() + forecastResults.trend_analysis.historical_trend.slice(1)}
                   </span>
                 </div>
-               {/*  <div className="trend-item">
-                  <span>Volatility:</span>
-                  <span>{forecastResults.trend_analysis.volatility}%</span>
-                </div> */}
+                {forecastResults.trend_analysis.volatility !== undefined && (
+                  <div className="trend-item">
+                    <span>Volatility:</span>
+                    <span>{forecastResults.trend_analysis.volatility}%</span>
+                  </div>
+                )}
                 <div className="trend-item">
                   <span>Average Value:</span>
                   <span>{forecastResults.trend_analysis.average_value}</span>
@@ -434,7 +478,7 @@ const ForecastPage = () => {
               </div>
 
               <div className="analysis-card">
-                <h4> 2-Year Forecast Summary</h4>
+                <h4>2-Year Forecast Summary</h4>
                 <div className="trend-item">
                   <span>24-Month Total:</span>
                   <span>{forecastResults.trend_analysis.forecast_total_24_months}</span>
@@ -460,7 +504,7 @@ const ForecastPage = () => {
               </div>
 
               <div className="analysis-card">
-                <h4> Seasonal Insights</h4>
+                <h4>Seasonal Insights</h4>
                 <div className="seasonal-lists">
                   <div>
                     <strong>Peak Months:</strong>
@@ -482,6 +526,27 @@ const ForecastPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Prophet Insights (if available) */}
+          {forecastResults.prophet_available && forecastResults.trend_analysis.prophet_insights && (
+            <div className="analysis-card">
+              <h4>Advanced Time Series Insights (Prophet Model)</h4>
+              <div className="trend-item">
+                <span>Trend Direction:</span>
+                <span>{forecastResults.trend_analysis.prophet_insights.trend_direction}</span>
+              </div>
+              <div className="trend-item">
+                <span>Seasonality Strength:</span>
+                <span>{forecastResults.trend_analysis.prophet_insights.seasonality_strength?.toFixed(2) || 'N/A'}</span>
+              </div>
+              {forecastResults.trend_analysis.prophet_insights.uncertainty_range && (
+                <div className="trend-item">
+                  <span>Forecast Uncertainty:</span>
+                  <span>±{forecastResults.trend_analysis.prophet_insights.uncertainty_range.avg_width?.toFixed(2) || 'N/A'}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

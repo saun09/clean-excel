@@ -8,15 +8,13 @@ import tipIcon from '../assets/icons/tip.png';
 import FlowSteps from './FlowSteps'; 
 import StandardizeCleanButton from './StandardizeCleanButton';
 
-// Updated API URL configuration
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
-
 const FileUpload = ({ onUpload = () => {} }) => {
   const [file, setFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('idle');
   const [previewData, setPreviewData] = useState([]);
   const [uploadedFilename, setUploadedFilename] = useState(null);
+
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
@@ -52,11 +50,9 @@ const FileUpload = ({ onUpload = () => {} }) => {
     formData.append('file', fileToUpload);
 
     try {
-      // Updated to use dynamic API URL
-      const response = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
+      const response = await axios.post('http://localhost:5000/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-        withCredentials: true
-      });
+      }, {withCredentials: true});
 
       console.log("Upload success:", response.data);
       console.log('Preview Data:', response.data.preview);
@@ -66,6 +62,7 @@ const FileUpload = ({ onUpload = () => {} }) => {
       sessionStorage.setItem("filename", response.data.filename);
       console.log("Saved filename to sessionStorage:", sessionStorage.getItem("filename"));
       setUploadedFilename(response.data.filename);
+
 
       onUpload(response.data.filename);
     } catch (error) {
@@ -153,46 +150,49 @@ const FileUpload = ({ onUpload = () => {} }) => {
       </div>
 
       {previewData && previewData.length > 0 && (
-        <>
-          {/* Data Preview Card */}
-          <div className="preview-container">
-            <h3>Data Preview</h3>
-            <p className="upload-subtext">This is the raw preview of the uploaded file.</p>
-            <table className="preview-table">
-              <thead>
-                <tr>
-                  {Object.keys(previewData[0]).map((key) => (
-                    <th key={key}>{key}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {previewData.map((row, index) => (
-                  <tr key={index}>
-                    {Object.values(row).map((value, cellIndex) => (
-                      <td key={cellIndex}>
-                        {value !== null && value !== undefined && !Number.isNaN(value)
-                          ? String(value)
-                          : '-'}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-      
-      {uploadedFilename && (
-        <div style={{ marginTop: '20px' }}>
-          <StandardizeCleanButton
-            filename={uploadedFilename}
-            onStatusUpdate={(msg) => console.log("Status:", msg)}
-            onCleanComplete={(cleanedFile) => console.log("Cleaned File:", cleanedFile)}
-          />
-        </div>
-      )}
+  <>
+    {/* Data Preview Card */}
+    <div className="preview-container">
+      <h3>Data Preview</h3>
+      <p className="upload-subtext">This is the raw preview of the uploaded file.</p>
+      <table className="preview-table">
+        <thead>
+          <tr>
+            {Object.keys(previewData[0]).map((key) => (
+              <th key={key}>{key}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {previewData.map((row, index) => (
+            <tr key={index}>
+              {Object.values(row).map((value, cellIndex) => (
+                <td key={cellIndex}>
+                  {value !== null && value !== undefined && !Number.isNaN(value)
+                    ? String(value)
+                    : '-'}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+
+  </>
+)}
+{uploadedFilename && (
+  <div style={{ marginTop: '20px' }}>
+    <StandardizeCleanButton
+      filename={uploadedFilename}
+      onStatusUpdate={(msg) => console.log("Status:", msg)}
+      onCleanComplete={(cleanedFile) => console.log("Cleaned File:", cleanedFile)}
+    />
+  </div>
+)}
+
+
     </div>
   );
 };

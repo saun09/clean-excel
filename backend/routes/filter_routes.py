@@ -74,7 +74,7 @@ def load_filter_options():
         if 'Item_Description' in df.columns:
             options['item_descriptions'] = sorted(df['Item_Description'].dropna().unique().tolist())
 
-        print(f"✅ Filter options loaded for {len(df)} records")
+        print(f" Filter options loaded for {len(df)} records")
         print(f"Available columns: {df.columns.tolist()}")
         print(f"Options: {options}")
 
@@ -84,7 +84,7 @@ def load_filter_options():
             'message': 'Filter options loaded successfully'
         })
     except Exception as e:
-        print(f"❌ Error loading filter options: {str(e)}")
+        print(f" Error loading filter options: {str(e)}")
         return jsonify({'error': f'Failed to load filter options: {str(e)}'}), 500
 
 @filter_bp.route('/api/filter-data', methods=['POST'])
@@ -139,7 +139,7 @@ def filter_data():
         filtered_count = len(df)
         preview = df.head(20).replace({np.nan: None}).to_dict(orient='records')
 
-        print(f"✅ Filtered from {original_count} to {filtered_count} records")
+        print(f" Filtered from {original_count} to {filtered_count} records")
 
         return jsonify({
             'success': True,
@@ -148,7 +148,7 @@ def filter_data():
             'filters_applied': data
         })
     except Exception as e:
-        print(f"❌ Filter error: {str(e)}")
+        print(f" Filter error: {str(e)}")
         return jsonify({
             'success': False,
             'error': f'Filter error: {str(e)}'
@@ -240,7 +240,7 @@ def analyze_filtered_data():
         json_str = json.dumps(cleaned_results, default=str)
         cleaned_results = json.loads(json_str)
 
-        print(f"✅ Analysis completed for {len(df)} records")
+        print(f" Analysis completed for {len(df)} records")
 
         return jsonify({
             'success': True,
@@ -248,7 +248,7 @@ def analyze_filtered_data():
             'message': f'Analyzed {len(df)} records (filtered from {original_count})'
         })
     except Exception as e:
-        print(f"❌ Analysis error: {str(e)}")
+        print(f" Analysis error: {str(e)}")
         return jsonify({
             'success': False,
             'error': f'Analysis failed: {str(e)}'

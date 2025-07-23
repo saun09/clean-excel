@@ -6,7 +6,6 @@ import Plot from 'react-plotly.js';
 import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const FilterPage = () => {
   const [data, setData] = useState([]);
@@ -110,7 +109,7 @@ const FilterPage = () => {
       setLoading(true);
       setError('');
       
-      const response = await axios.post('${API_BASE_URL}/api/load-filter-options', {
+      const response = await axios.post('http://localhost:5000/api/load-filter-options', {
         filename: clusteredFilename
       });
 
@@ -194,7 +193,7 @@ const FilterPage = () => {
 
       console.log('Sending payload:', payload);
       
-      const response = await axios.post('${API_BASE_URL}/api/filter-data', payload, {
+      const response = await axios.post('http://localhost:5000/api/filter-data', payload, {
         headers: { 'Content-Type': 'application/json' }
       });
 
@@ -239,7 +238,7 @@ const FilterPage = () => {
 
       console.log(' Analyzing with payload:', payload);
 
-      const response = await axios.post('${API_BASE_URL}/api/analyze-filtered', payload, {
+      const response = await axios.post('http://localhost:5000/api/analyze-filtered', payload, {
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'

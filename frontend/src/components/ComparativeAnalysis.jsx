@@ -4,7 +4,6 @@ import './css/ComparativeAnalysis.css';
 import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 import Plot from 'react-plotly.js';
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const ComparativeAnalysis = () => {
   const [loading, setLoading] = useState(false);
@@ -71,7 +70,7 @@ const ComparativeAnalysis = () => {
       setLoading(true);
       setError('');
       
-      const response = await axios.post(`${API_BASE_URL}/api/load-comparative-options`, {
+      const response = await axios.post('http://localhost:5000/api/load-comparative-options', {
         filename: clusteredFilename
       });
 
@@ -138,7 +137,7 @@ const ComparativeAnalysis = () => {
 
       console.log('Sending comparative analysis payload:', payload);
 
-      const response = await axios.post(`${API_BASE_URL}/api/perform-comparative-analysis`, payload, {
+      const response = await axios.post('http://localhost:5000/api/perform-comparative-analysis', payload, {
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'

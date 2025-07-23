@@ -1,7 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './css/ClusterPage.css'; // reusing the same CSS
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 export default function ClusterResults() {
   const location = useLocation();
@@ -30,7 +29,7 @@ export default function ClusterResults() {
         {/* Button Actions */}
         <div className="action-buttons">
           <a
-            href={`${API_BASE_URL}/api/download/${clusteredFilename}`}
+            href={`http://localhost:5000/api/download/${clusteredFilename}`}
             className="download-btn"
             download
           >
@@ -38,7 +37,7 @@ export default function ClusterResults() {
           </a>
 
           <a
-            href={`${API_BASE_URL}/api/download/${excelFilename}`}
+            href={`http://localhost:5000/api/download/${excelFilename}`}
             className="excel-download-btn"
             download
           >

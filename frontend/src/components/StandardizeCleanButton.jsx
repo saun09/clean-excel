@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './css/StandardizeCleanButton.css';
 import { useNavigate } from 'react-router-dom';
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 const StandardizeCleanButton = ({ filename, onStatusUpdate, onCleanComplete }) => {
   const [cleanedData, setCleanedData] = useState([]);
   const [downloadLink, setDownloadLink] = useState(null);
@@ -17,14 +17,14 @@ const StandardizeCleanButton = ({ filename, onStatusUpdate, onCleanComplete }) =
 
     try {
       //  Send filename in POST body
-      const response = await axios.post('${API_BASE_URL}/api/standardize', { filename }, {withCredentials: true});
+      const response = await axios.post('http://localhost:5000/api/standardize', { filename }, {withCredentials: true});
 
 
 
       const cleanedFilename = response.data.cleaned_filename;
 
       //  Fetch cleaned file as text
-      const csvResp = await axios.get(`${API_BASE_URL}/api/download/${cleanedFilename}`);
+      const csvResp = await axios.get(`http://localhost:5000/api/download/${cleanedFilename}`);
 
       const rows = csvResp.data.split('\n').map(line => line.split(','));
       const headers = rows[0];
@@ -38,7 +38,7 @@ const StandardizeCleanButton = ({ filename, onStatusUpdate, onCleanComplete }) =
       );
 
       setCleanedData(cleanedDataJson);
-      setDownloadLink(`${API_BASE_URL}/api/download/${cleanedFilename}`);
+      setDownloadLink(`http://localhost:5000/api/download/${cleanedFilename}`);
       onStatusUpdate?.('Cleaning complete ');
       onCleanComplete?.(response.data.cleaned_filename);
        setShowPreview(true); 

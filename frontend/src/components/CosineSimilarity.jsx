@@ -47,7 +47,7 @@ const CosineSimilarity = () => {
             setDownloadLink(`http://localhost:5000/api/download/${response.data.output_file}`);
             setExcelDownloadLink(`http://localhost:5000/api/download/${response.data.excel_file}`);
             setSuggestions(response.data.replacement_suggestions || []);
-            console.log("📌 Suggestions from backend:", response.data.replacement_suggestions);
+            console.log(" Suggestions from backend:", response.data.replacement_suggestions);
             response.data.replacement_suggestions.forEach((s, i) =>
               console.log(`➡ Row ${s.replace.row} <- Row ${s.replace.suggested_with_row} [${s.replace.similarity}]`)
             );
@@ -61,7 +61,7 @@ const CosineSimilarity = () => {
     };
 
     if (!cleanedFilename) {
-  return <div className="cosine-similarity-container">⚠️ No cleaned file found. Please upload and clean a file first.</div>;
+  return <div className="cosine-similarity-container"> No cleaned file found. Please upload and clean a file first.</div>;
 }
 
   const handleAcceptSuggestion = async (suggestion) => {
@@ -164,7 +164,7 @@ const CosineSimilarity = () => {
           )}
           {excelDownloadLink && (
             <a className="download-link" href={excelDownloadLink} download>
-              🟨 Download Color-Coded Excel
+               Download Color-Coded Excel
             </a>
 )}
         </div>

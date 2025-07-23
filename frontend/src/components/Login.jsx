@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./css/Login.css";
 import logo from "../assets/AGRLogo.jpeg";
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function Login({ setAuthenticated }) {
   const [username, setUsername] = useState("");
@@ -11,7 +10,7 @@ function Login({ setAuthenticated }) {
 
   const handleLogin = async () => {
     try {
-      const res = await fetch(process.env.REACT_APP_BACKEND_URL, {
+      const res = await fetch("http://localhost:5000/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

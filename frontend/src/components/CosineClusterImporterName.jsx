@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './css/CosineSimilarity.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const CosineClusterImporterName = () => {
   const location = useLocation();
@@ -24,14 +23,14 @@ const CosineClusterImporterName = () => {
     setSuggestions([]);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/cosine_cluster`, {
+      const response = await axios.post('http://localhost:5000/api/cosine_cluster', {
         filename: cleanedFilename,
         column: selectedColumn,
         threshold
       }, { withCredentials: true });
 
       setClusteredData(response.data.clustered_preview || []);
-      setDownloadLink(`${API_BASE_URL}/api/download/${response.data.output_file}`);
+      setDownloadLink(`http://localhost:5000/api/download/${response.data.output_file}`);
       setSuggestions(response.data.replacement_suggestions || []);
     } catch (err) {
       setError("Failed to run clustering. Please try again.");
@@ -41,7 +40,7 @@ const CosineClusterImporterName = () => {
 
   const handleAcceptSuggestion = async (suggestion) => {
     try {
-      await axios.post(`${API_BASE_URL}/api/apply_replacement`, {
+      await axios.post('http://localhost:5000/api/apply_replacement', {
         filename: cleanedFilename,
         column: selectedColumn,
         targetRow: suggestion.row,

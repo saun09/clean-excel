@@ -1,5 +1,4 @@
 import React from 'react';
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const DataTable = ({ data, columns }) => {
   if (!data || data.length === 0) return <p>No data available</p>;
