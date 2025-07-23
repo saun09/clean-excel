@@ -34,26 +34,42 @@ function Login({ setAuthenticated }) {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <img src={logo} alt="AGR Logo" className="login-logo" />
-        <h1 className="product-title">Xelly</h1>
-        <h2 className="login-title">Login to your account</h2>
-        <input
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          placeholder="Username"
-          className="login-input"
-        />
-        <input
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          placeholder="Password"
-          className="login-input"
-        />
-        <button onClick={handleLogin} className="login-button">Login</button>
-      </div>
+  <div className="login-card">
+    <img src={logo} alt="AGR Logo" className="login-logo" />
+    <h1 className="product-title">Xelly</h1>
+    <h2 className="login-title">Login to your account</h2>
+
+    <input
+      value={username}
+      onChange={e => setUsername(e.target.value)}
+      placeholder="Username"
+      className="login-input"
+    />
+    <input
+      type="password"
+      value={password}
+      onChange={e => setPassword(e.target.value)}
+      placeholder="Password"
+      className="login-input"
+    />
+
+    <button onClick={handleLogin} className="login-button">Login</button>
+
+    {/* Footer inside login card */}
+    <div className="developer-footer">
+      <p className="animated-text">Developed by <span>Saundarya</span></p>
+      <a
+        href="https://www.linkedin.com/in/saundarya-subramaniam"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="linkedin-button"
+      >
+        LinkedIn
+      </a>
     </div>
+  </div>
+</div>
+
   );
 }
 

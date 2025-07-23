@@ -69,3 +69,51 @@
 .login-button:hover {
   background: linear-gradient(135deg, #5e35b1, #4527a0);
 }
+.developer-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  animation: fadeOut 5s forwards;
+}
+
+.animated-text {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.animated-text span {
+  color: #7c4dff;
+  font-weight: 600;
+}
+
+.linkedin-button {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  background-color: #7d7f80;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: background-color 0.3s ease;
+}
+
+.linkedin-button:hover {
+  background-color: #005f8d;
+}
+
+/* Animation keyframes */
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    visibility: visible;
+  }
+  90% {
+    opacity: 1;
+    visibility: visible;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
