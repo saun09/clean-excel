@@ -12,9 +12,9 @@ from routes.upload_routes import upload_bp
 print("importing clustering_bp")
 from routes.clustering_routes import clustering_bp
 
-print("importing export_bp")
+""" print("importing export_bp")
 from routes.export_routes import export_bp
-
+ """
 print("importing filter_bp")
 from routes.filter_routes import filter_bp
 
@@ -112,7 +112,7 @@ def test_cors():
 app.register_blueprint(login_bp)
 app.register_blueprint(upload_bp)
 app.register_blueprint(clustering_bp)
-app.register_blueprint(export_bp)
+""" app.register_blueprint(export_bp) """
 app.register_blueprint(filter_bp)
 app.register_blueprint(forecast_bp)
 app.register_blueprint(cosine_bp)
