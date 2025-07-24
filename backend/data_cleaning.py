@@ -7,6 +7,14 @@ from typing import Dict, List, Optional, Tuple
 import time
 from datetime import datetime
 from io import BytesIO
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # loads from .env file
+
+base_url = os.getenv("base_url")
+api_key = os.getenv("api_key")
+
 def is_email(value):
     """Check if a value is a valid email address."""
     email_pattern = re.compile(
@@ -266,8 +274,7 @@ def convert_to_kg(df, quantity_col="Quantity", unit_col="UQC"):
 import requests
 import pandas as pd
 
-base_url = "https://marketdata.tradermade.com/api/v1/convert"
-api_key = "laC15V4w7FQgzxnfEUo5"
+
 
 def convert_currency(amount, from_currency, to_currency):
     if from_currency == to_currency:
