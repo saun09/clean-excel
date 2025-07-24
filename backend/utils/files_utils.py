@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-print("✅ files_utils loaded")
+print("files_utils loaded")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'csv', 'xlsx'}
