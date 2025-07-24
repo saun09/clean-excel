@@ -6,7 +6,7 @@ from fuzzywuzzy import fuzz
 from session_utils import save_df_to_session, get_df_from_session
 import pandas as pd
 from flask import current_app as app
-from cosine_clustering import cluster_column, highlight_changes_in_excel,  get_replacement_suggestions
+from cosine_clustering import cluster_column, highlight_changes_in_excel, get_replacement_suggestions
 
 # --------------- ADDED FOR TIMEOUT HANDLING ---------------
 import signal
@@ -25,20 +25,23 @@ def timeout_handler(func):
     return wrapper
 # --------------- END TIMEOUT HANDLING ---------------
 
-cosine_bp = Blueprint('cosine', __name__ , url_prefix = '/api')
+cosine_bp = Blueprint('cosine', __name__, url_prefix='/api')
+
+def handle_cors_preflight():
+    origin = request.headers.get("Origin")
+    response = jsonify()
+    response.headers.add("Access-Control-Allow-Origin", origin)
+    response.headers.add("Vary", "Origin")
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization,Accept,Origin")
+    response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS")
+    response.headers.add("Access-Control-Allow-Credentials", "true")
+    return response, 200
 
 @cosine_bp.route('/cosine_cluster', methods=['POST', 'OPTIONS'])
-# --------------- ADDED TIMEOUT DECORATOR ---------------
 @timeout_handler
-# --------------- END TIMEOUT DECORATOR ---------------
 def cluster_cosine():
     if request.method == 'OPTIONS':
-        # Handle preflight request
-        response = jsonify()
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Headers', "Content-Type,Authorization,Accept,Origin")
-        response.headers.add('Access-Control-Allow-Methods', "GET,PUT,POST,DELETE,OPTIONS")
-        return response, 200
+        return handle_cors_preflight()
 
     data = request.get_json()
     filename = data.get('filename')
@@ -49,59 +52,48 @@ def cluster_cosine():
         return jsonify({'error': 'Column name and filename are required'}), 400
 
     try:
-        # --------------- ADDED PROGRESS LOGGING ---------------
         print("🚀 Starting cosine clustering process")
         print(f"📊 Column: {column}, Threshold: {threshold}")
         print(f"📁 Filename: {filename}")
         start_time = time.time()
-        # --------------- END PROGRESS LOGGING ---------------
-        
-        # Define progressive clustering filename
+
         progressive_filename = f"progressive_clustered_{filename}"
         progressive_file_path = os.path.join(app.config['UPLOAD_FOLDER'], progressive_filename)
-        
-        # Check if progressive clustering file exists (for subsequent clustering steps)
+
         if os.path.exists(progressive_file_path):
             print("📂 Loading existing progressive clustering file")
             df_cleaned = pd.read_csv(progressive_file_path)
             print(f"✅ Loaded progressive file shape: {df_cleaned.shape}")
         else:
-            # First clustering step - load original cleaned file
             print("🔄 First clustering step - loading original cleaned file")
             cleaned_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            
+
             if not os.path.exists(cleaned_file_path):
                 return jsonify({'error': f'Cleaned file not found: {filename}'}), 404
-            
+
             df_cleaned = pd.read_csv(cleaned_file_path)
             print(f"✅ Loaded original file shape: {df_cleaned.shape}")
 
         print(f"📋 Available columns: {list(df_cleaned.columns)}")
         print(f"🔍 Sample values in {column}: {df_cleaned[column].dropna().head(5).tolist()}")
 
-        # Validate column exists
         if column not in df_cleaned.columns:
             return jsonify({'error': f'Column {column} not found in data'}), 400
 
-        # Perform clustering on the specified column
         print(f"⚡ Starting clustering for column: {column}")
         df_clustered = cluster_column(df_cleaned.copy(), column, threshold)
         print(f"✅ Clustering completed. Result shape: {df_clustered.shape}")
 
-        # Save the progressively updated file (contains all clustering results so far)
         df_clustered.to_csv(progressive_file_path, index=False)
         print(f"💾 Progressive file saved: {progressive_file_path}")
 
-        # Save column-specific file for download/preview
         cosine_filename = f"cosine_clustered_{column.lower().replace(' ', '_')}.csv"
         cosine_file_path = os.path.join(app.config['UPLOAD_FOLDER'], cosine_filename)
         df_clustered.to_csv(cosine_file_path, index=False)
         print(f"💾 Column-specific file saved: {cosine_file_path}")
 
-        # Create highlighted Excel file for visualization
         highlighted_excel_path = cosine_file_path.replace('.csv', '.xlsx')
         try:
-            # Load original data for comparison
             original_file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             if os.path.exists(original_file_path):
                 original_df = pd.read_csv(original_file_path)
@@ -112,7 +104,6 @@ def cluster_cosine():
         except Exception as e:
             print(f"⚠️ Warning: Could not create highlighted Excel file: {str(e)}")
 
-        # Generate replacement suggestions
         print("🔍 Generating replacement suggestions...")
         try:
             suggestions = get_replacement_suggestions(df_cleaned, column, threshold)
@@ -121,15 +112,14 @@ def cluster_cosine():
             print(f"⚠️ Warning: Could not generate suggestions: {str(e)}")
             suggestions = []
 
-        # Prepare response data
         clustered_preview = df_clustered.head(10).fillna('').to_dict(orient='records')
-        
+
         response_data = {
             'success': True,
             'message': 'Data clustered successfully',
             'output_file': cosine_filename,
             'progressive_file': progressive_filename,
-            'final_filename': progressive_filename,  # This is what FilterPage should use
+            'final_filename': progressive_filename,
             'replacement_suggestions': suggestions,
             'clustered_preview': clustered_preview,
             'column_clustered': column,
@@ -137,52 +127,37 @@ def cluster_cosine():
             'total_rows': len(df_clustered)
         }
 
-        # Add Excel file info if it exists
         if os.path.exists(highlighted_excel_path):
             response_data['excel_file'] = os.path.basename(highlighted_excel_path)
 
-        # --------------- ADDED COMPLETION LOGGING ---------------
         end_time = time.time()
         print(f"🎉 Clustering process completed successfully in {end_time - start_time:.2f} seconds")
-        # --------------- END COMPLETION LOGGING ---------------
-        
-        return jsonify(response_data)
+
+        response = jsonify(response_data)
+        origin = request.headers.get("Origin")
+        response.headers.add("Access-Control-Allow-Origin", origin)
+        response.headers.add("Vary", "Origin")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response
 
     except FileNotFoundError as e:
-        error_msg = f'File not found: {str(e)}'
-        print(f"❌ FileNotFoundError: {error_msg}")
-        return jsonify({'error': error_msg}), 404
-    
+        return jsonify({'error': f'File not found: {str(e)}'}), 404
     except KeyError as e:
-        error_msg = f'Missing column in data: {str(e)}'
-        print(f"❌ KeyError: {error_msg}")
-        return jsonify({'error': error_msg}), 400
-    
+        return jsonify({'error': f'Missing column in data: {str(e)}'}), 400
     except ValueError as e:
-        error_msg = f'Invalid threshold value: {str(e)}'
-        print(f"❌ ValueError: {error_msg}")
-        return jsonify({'error': error_msg}), 400
-    
+        return jsonify({'error': f'Invalid threshold value: {str(e)}'}), 400
     except Exception as e:
-        error_msg = f'Error clustering data: {str(e)}'
-        print(f"❌ Unexpected error: {error_msg}")
         import traceback
         traceback.print_exc()
-        return jsonify({'error': error_msg}), 500
+        return jsonify({'error': f'Error clustering data: {str(e)}'}), 500
 
 
 @cosine_bp.route('/apply_replacement', methods=['POST', 'OPTIONS'])
-# --------------- ADDED TIMEOUT DECORATOR ---------------
 @timeout_handler
-# --------------- END TIMEOUT DECORATOR ---------------
 def apply_replacement():
     if request.method == 'OPTIONS':
-        # is critical for passing preflight
-        response = jsonify()
-        response.headers.add("Access-Control-Allow-Origin", "*")
-        response.headers.add('Access-Control-Allow-Methods', "GET,PUT,POST,DELETE,OPTIONS")
-        return response, 200
-        
+        return handle_cors_preflight()
+
     data = request.get_json()
     filename = data.get('filename')
     column = data.get('column')
@@ -198,4 +173,9 @@ def apply_replacement():
     df.at[target_row, column] = new_value
     df.to_csv(filepath, index=False)
 
-    return jsonify({'message': 'Replacement applied successfully'})
+    response = jsonify({'message': 'Replacement applied successfully'})
+    origin = request.headers.get("Origin")
+    response.headers.add("Access-Control-Allow-Origin", origin)
+    response.headers.add("Vary", "Origin")
+    response.headers.add("Access-Control-Allow-Credentials", "true")
+    return response
