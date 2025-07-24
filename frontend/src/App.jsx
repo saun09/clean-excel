@@ -1,6 +1,7 @@
 // src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+
 import FileUpload from './components/FileUpload';
 import StandardizeCleanButton from './components/StandardizeCleanButton';
 import ClusterPage from './components/ClusterPage';
@@ -88,7 +89,8 @@ export default function App() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/clean-excel">
+
       <Routes>
         <Route path="/login" element={<Login setAuthenticated={setAuthenticated} />} />
 
