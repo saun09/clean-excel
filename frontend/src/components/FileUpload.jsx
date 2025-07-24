@@ -7,6 +7,7 @@ import xlsxIcon from '../assets/icons/excel.png';
 import tipIcon from '../assets/icons/tip.png';
 import FlowSteps from './FlowSteps'; 
 import StandardizeCleanButton from './StandardizeCleanButton';
+import { supabase } from './supabase'; 
 
 const FileUpload = ({ onUpload = () => {} }) => {
   const [file, setFile] = useState(null);
@@ -14,7 +15,6 @@ const FileUpload = ({ onUpload = () => {} }) => {
   const [uploadStatus, setUploadStatus] = useState('idle');
   const [previewData, setPreviewData] = useState([]);
   const [uploadedFilename, setUploadedFilename] = useState(null);
-
 
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
@@ -44,27 +44,52 @@ const FileUpload = ({ onUpload = () => {} }) => {
     }
   };
 
+  const uploadToSupabase = async (filename, fileBlob) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('uploaded-files')
+        .upload(filename, fileBlob, {
+          cacheControl: '3600',
+          upsert: true,
+        });
+
+      if (error) {
+        console.error("Supabase upload error:", error.message);
+      } else {
+        console.log("Supabase upload successful:", data);
+      }
+    } catch (err) {
+      console.error("Unexpected Supabase upload error:", err);
+    }
+  };
+
   const uploadFile = async (fileToUpload) => {
     setUploadStatus('uploading');
     const formData = new FormData();
     formData.append('file', fileToUpload);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }, {withCredentials: true});
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACKEND_URL}/api/upload`,
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          withCredentials: true,
+        }
+      );
 
       console.log("Upload success:", response.data);
-      console.log('Preview Data:', response.data.preview);
       setPreviewData(response.data.preview);
       setUploadStatus('success');
 
-      sessionStorage.setItem("filename", response.data.filename);
-      console.log("Saved filename to sessionStorage:", sessionStorage.getItem("filename"));
-      setUploadedFilename(response.data.filename);
+      const filename = response.data.filename;
+      sessionStorage.setItem("filename", filename);
+      setUploadedFilename(filename);
 
+      // Upload to Supabase as well
+      await uploadToSupabase(filename, fileToUpload);
 
-      onUpload(response.data.filename);
+      onUpload(filename);
     } catch (error) {
       console.error('Upload error:', error);
       setUploadStatus('error');
@@ -80,7 +105,6 @@ const FileUpload = ({ onUpload = () => {} }) => {
       </div>
 
       <div className="upload-grid">
-        {/* Left: File Upload */}
         <div className="file-upload">
           <div
             className={`drop-zone ${isDragOver ? 'drag-over' : ''}`}
@@ -119,7 +143,6 @@ const FileUpload = ({ onUpload = () => {} }) => {
           )}
         </div>
 
-        {/* Right: Supported Formats */}
         <div className="upload-info">
           <h2>Supported Formats</h2>
           <p className="upload-subtext">We support the following file formats</p>
@@ -149,50 +172,44 @@ const FileUpload = ({ onUpload = () => {} }) => {
         </div>
       </div>
 
-      {previewData && previewData.length > 0 && (
-  <>
-    {/* Data Preview Card */}
-    <div className="preview-container">
-      <h3>Data Preview</h3>
-      <p className="upload-subtext">This is the raw preview of the uploaded file.</p>
-      <table className="preview-table">
-        <thead>
-          <tr>
-            {Object.keys(previewData[0]).map((key) => (
-              <th key={key}>{key}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {previewData.map((row, index) => (
-            <tr key={index}>
-              {Object.values(row).map((value, cellIndex) => (
-                <td key={cellIndex}>
-                  {value !== null && value !== undefined && !Number.isNaN(value)
-                    ? String(value)
-                    : '-'}
-                </td>
+      {previewData?.length > 0 && (
+        <div className="preview-container">
+          <h3>Data Preview</h3>
+          <p className="upload-subtext">This is the raw preview of the uploaded file.</p>
+          <table className="preview-table">
+            <thead>
+              <tr>
+                {Object.keys(previewData[0]).map((key) => (
+                  <th key={key}>{key}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {previewData.map((row, index) => (
+                <tr key={index}>
+                  {Object.values(row).map((value, cellIndex) => (
+                    <td key={cellIndex}>
+                      {value !== null && value !== undefined && !Number.isNaN(value)
+                        ? String(value)
+                        : '-'}
+                    </td>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+            </tbody>
+          </table>
+        </div>
+      )}
 
-
-  </>
-)}
-{uploadedFilename && (
-  <div style={{ marginTop: '20px' }}>
-    <StandardizeCleanButton
-      filename={uploadedFilename}
-      onStatusUpdate={(msg) => console.log("Status:", msg)}
-      onCleanComplete={(cleanedFile) => console.log("Cleaned File:", cleanedFile)}
-    />
-  </div>
-)}
-
-
+      {uploadedFilename && (
+        <div style={{ marginTop: '20px' }}>
+          <StandardizeCleanButton
+            filename={uploadedFilename}
+            onStatusUpdate={(msg) => console.log("Status:", msg)}
+            onCleanComplete={(cleanedFile) => console.log("Cleaned File:", cleanedFile)}
+          />
+        </div>
+      )}
     </div>
   );
 };

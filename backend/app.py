@@ -42,6 +42,10 @@ load_dotenv()  # Load from .env
 
 app.secret_key = os.getenv('FLASK_SECRET', 'fallbacksecret')  # needed for sessions
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
+# ADD THESE LINES FOR TIMEOUT HANDLING
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+# Increase file size limit if needed
+app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024  # 500 MB (increased from 100MB)
 
 app.config.from_object(Config)
 Config.init_app(app)
