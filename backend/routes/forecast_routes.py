@@ -69,7 +69,7 @@ def train_prophet_model(df, forecast_column):
         print(f"Prophet model error: {str(e)}")
         return None, None, False, str(e)
 
-@forecast_bp.route('/api/load-forecast-options', methods=['POST'])
+@forecast_bp.route('/api/load-forecast-options', methods=['POST', 'GET'])
 def load_forecast_options():
     """Load available companies, forecast columns, and years from the clustered data"""
     try:
@@ -135,7 +135,7 @@ def load_forecast_options():
         traceback.print_exc()
         return jsonify({'error': f'Server error: {str(e)}'}), 500
 
-@forecast_bp.route('/api/get-products-by-company', methods=['POST'])
+@forecast_bp.route('/api/get-products-by-company', methods=['POST','GET'])
 def get_products_by_company():
     """Get available products for a specific company"""
     try:
@@ -173,7 +173,7 @@ def get_products_by_company():
         traceback.print_exc()
         return jsonify({'error': f'Server error: {str(e)}'}), 500
 
-@forecast_bp.route('/api/generate-forecast', methods=['POST'])
+@forecast_bp.route('/api/generate-forecast', methods=['POST','GET'])
 def generate_forecast():
     try:
         data = request.get_json()
