@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/clean-excel/static/css/main.0257a78b.css",
+    "main.js": "/clean-excel/static/js/main.7cdcc480.js",
+    "static/js/453.54292a4b.chunk.js": "/clean-excel/static/js/453.54292a4b.chunk.js",
+    "index.html": "/clean-excel/index.html",
+    "main.0257a78b.css.map": "/clean-excel/static/css/main.0257a78b.css.map",
+    "main.7cdcc480.js.map": "/clean-excel/static/js/main.7cdcc480.js.map",
+    "453.54292a4b.chunk.js.map": "/clean-excel/static/js/453.54292a4b.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.0257a78b.css",
+    "static/js/main.7cdcc480.js"
+  ]
+}
