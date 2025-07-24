@@ -66,7 +66,7 @@ export default function App() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/check-auth', {
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/check-auth`, {
           method: 'GET',
           credentials: 'include',
         });
