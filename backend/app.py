@@ -1,5 +1,5 @@
 print("importing flask")
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from flask_session import Session
 from dotenv import load_dotenv
@@ -41,7 +41,7 @@ app = Flask(__name__)
 load_dotenv()  # Load from .env
 
 app.secret_key = os.getenv('FLASK_SECRET', 'fallbacksecret')  # needed for sessions
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
+
 # ADD THESE LINES FOR TIMEOUT HANDLING
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 # Increase file size limit if needed
@@ -51,35 +51,62 @@ app.config.from_object(Config)
 Config.init_app(app)
 print("Config loaded")
 
-# Dynamic CORS function to handle Vercel's changing URLs
-def is_allowed_origin(origin):
-    if not origin:
-        return False
-    
-    allowed_origins = [
-        "http://localhost:3000",
-        "https://clean-excel.vercel.app"
-    ]
-    
-    # Check exact matches first
-    if origin in allowed_origins:
-        return True
-    
-    # Allow any Vercel preview deployment
-    if origin.endswith(".vercel.app") and "saundarya-s-projects" in origin:
-        return True
-        
-    return False
-
-# CORS configuration with dynamic origin checking
+# CORS configuration - FIXED VERSION
 CORS(app, 
      supports_credentials=True,
-     origins="*",  # Allow all origins temporarily
+     origins=["http://localhost:3000", "https://clean-excel.vercel.app", "https://*.vercel.app"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-     allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Access-Control-Allow-Origin"])
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+     expose_headers=["Content-Type", "Authorization"])
 
+# Add these CORS handlers
+@app.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = jsonify()
+        origin = request.headers.get('Origin')
+        
+        # Allow specific origins or any vercel.app subdomain
+        if origin and (origin in ["http://localhost:3000", "https://clean-excel.vercel.app"] or 
+                      origin.endswith(".vercel.app")):
+            response.headers.add("Access-Control-Allow-Origin", origin)
+        else:
+            response.headers.add("Access-Control-Allow-Origin", "https://clean-excel.vercel.app")
+            
+        response.headers.add('Access-Control-Allow-Headers', "Content-Type,Authorization,Accept,Origin,X-Requested-With")
+        response.headers.add('Access-Control-Allow-Methods', "GET,PUT,POST,DELETE,OPTIONS")
+        response.headers.add('Access-Control-Allow-Credentials', 'true')
+        return response
+
+@app.after_request
+def after_request(response):
+    origin = request.headers.get('Origin')
+    
+    # Set specific origin if it's in our allowed list
+    if origin and (origin in ["http://localhost:3000", "https://clean-excel.vercel.app"] or 
+                  origin.endswith(".vercel.app")):
+        response.headers.add('Access-Control-Allow-Origin', origin)
+    else:
+        # Fallback for any other requests
+        response.headers.add('Access-Control-Allow-Origin', 'https://clean-excel.vercel.app')
+        
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept,Origin,X-Requested-With')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response
 
 Session(app)
+
+# Add a test endpoint to verify CORS is working
+@app.route('/api/test-cors', methods=['GET', 'POST', 'OPTIONS'])
+def test_cors():
+    if request.method == 'OPTIONS':
+        return '', 200
+    return jsonify({
+        "message": "CORS is working!", 
+        "origin": request.headers.get('Origin'),
+        "method": request.method
+    })
 
 # Register blueprints
 app.register_blueprint(login_bp)
