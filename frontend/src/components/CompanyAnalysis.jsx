@@ -29,7 +29,7 @@ const CompanyAnalysis = () => {
     setError('');
 
     try {
-      const response = await fetch('/api/load-companies', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/load-companies`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const CompanyAnalysis = () => {
     setShowAnalysis(false);
 
     try {
-      const response = await fetch('/api/analyze-company', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/analyze-company`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ const CompanyAnalysis = () => {
     if (!selectedCompany) return;
 
     try {
-      const response = await fetch('/api/export-company-data', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/export-company-data`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
