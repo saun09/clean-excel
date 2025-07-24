@@ -54,7 +54,7 @@ print("Config loaded")
 # CORS configuration - FIXED VERSION
 CORS(app, 
      supports_credentials=True,
-     origins=["http://localhost:3000", "https://clean-excel.vercel.app", "https://*.vercel.app"],
+     origins=["http://localhost:3000", "https://clean-excel.vercel.app"],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
      allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
      expose_headers=["Content-Type", "Authorization"])
