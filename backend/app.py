@@ -1,5 +1,5 @@
 print("importing flask")
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from flask_session import Session
 from dotenv import load_dotenv
@@ -46,15 +46,37 @@ app.config.from_object(Config)
 Config.init_app(app)
 print("Config loaded")
 
+# Dynamic CORS function to handle Vercel's changing URLs
+def is_allowed_origin(origin):
+    if not origin:
+        return False
+    
+    allowed_origins = [
+        "http://localhost:3000",
+        "https://clean-excel.vercel.app"
+    ]
+    
+    # Check exact matches first
+    if origin in allowed_origins:
+        return True
+    
+    # Allow any Vercel preview deployment
+    if origin.endswith(".vercel.app") and "saundarya-s-projects" in origin:
+        return True
+        
+    return False
 
-CORS(app, supports_credentials=True, resources={
-    r"/api/*": {
-        "origins": [
-            "http://localhost:3000",  # for local testing
-            "https://clean-excel-og7bgez01-saundarya-s-projects.vercel.app"  # for Vercel
-        ]
-    }
-})
+# CORS configuration with dynamic origin checking
+CORS(app, 
+     supports_credentials=True, 
+     origins=is_allowed_origin,
+     resources={
+         r"/api/*": {
+             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"]
+         }
+     })
+
 Session(app)
 
 # Register blueprints
@@ -71,4 +93,3 @@ app.register_blueprint(cluster_analysis_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
-
