@@ -37,7 +37,7 @@ const ForecastPage = () => {
     setError('');
     
     try {
-      const response = await fetch('/api/load-forecast-options', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/load-forecast-options`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -79,7 +79,7 @@ const ForecastPage = () => {
     setError('');
     
     try {
-      const response = await fetch('/api/get-products-by-company', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/get-products-by-company`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
