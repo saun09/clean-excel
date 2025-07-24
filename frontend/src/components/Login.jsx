@@ -56,17 +56,22 @@ function Login({ setAuthenticated }) {
     <button onClick={handleLogin} className="login-button">Login</button>
 
     {/* Footer inside login card */}
-    <div className="developer-footer">
-      <p className="animated-text">Developed by <span>Saundarya</span></p>
-      <a
-        href="https://www.linkedin.com/in/saundarya-subramaniam"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="linkedin-button"
-      >
-        LinkedIn
-      </a>
-    </div>
+  <div className="developer-footer">
+  <p className="animated-text">
+    Developed by <span>Saundarya Subramaniam</span><br />
+    <span className="guidance-text">under the guidance of Nidhi Nimgade, Divesh Khemani</span>
+  </p>
+  
+  <a
+    href="https://www.linkedin.com/in/saundarya-subramaniam"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="linkedin-button"
+  >
+    LinkedIn
+  </a>
+</div>
+
   </div>
 </div>
 

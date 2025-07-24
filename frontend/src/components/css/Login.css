@@ -72,7 +72,7 @@
 .developer-footer {
   margin-top: 1.5rem;
   text-align: center;
-  animation: fadeOut 5s forwards;
+  animation: fadeOut 60s forwards;
 }
 
 .animated-text {
@@ -116,4 +116,10 @@
     opacity: 0;
     visibility: hidden;
   }
+}
+
+.guidance-text {
+  font-size: 0.9rem;
+  color: #888; /* light gray */
+  font-style: italic;
 }
