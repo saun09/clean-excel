@@ -73,11 +73,12 @@ def train_prophet_model(df, forecast_column):
 def load_forecast_options():
     """Load available companies, forecast columns, and years from the clustered data"""
     try:
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No data provided'}), 400
-            
-        filename = data.get('filename')
+        # Handle both GET and POST requests
+        if request.method == 'POST':
+            data = request.get_json()
+            filename = data.get('filename') if data else None
+        else:  # GET request
+            filename = request.args.get('filename')
         
         if not filename:
             return jsonify({'error': 'Filename is required'}), 400
@@ -139,12 +140,14 @@ def load_forecast_options():
 def get_products_by_company():
     """Get available products for a specific company"""
     try:
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No data provided'}), 400
-            
-        filename = data.get('filename')
-        company_name = data.get('company_name')
+        # Handle both GET and POST requests
+        if request.method == 'POST':
+            data = request.get_json()
+            filename = data.get('filename') if data else None
+            company_name = data.get('company_name') if data else None
+        else:  # GET request
+            filename = request.args.get('filename')
+            company_name = request.args.get('company_name')
         
         if not filename or not company_name:
             return jsonify({'error': 'Filename and company_name are required'}), 400
@@ -172,18 +175,23 @@ def get_products_by_company():
         print(f"Get products by company error: {str(e)}")
         traceback.print_exc()
         return jsonify({'error': f'Server error: {str(e)}'}), 500
-
 @forecast_bp.route('/api/generate-forecast', methods=['POST','GET'])
 def generate_forecast():
     try:
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'No data provided in request'}), 400
-            
-        filename = data.get('filename')
-        company_name = data.get('company_name')
-        product_name = data.get('product_name')
-        forecast_column = data.get('forecast_column')
+        # Handle both GET and POST requests
+        if request.method == 'POST':
+            data = request.get_json()
+            if not data:
+                return jsonify({'error': 'No data provided in request'}), 400
+            filename = data.get('filename')
+            company_name = data.get('company_name')
+            product_name = data.get('product_name')
+            forecast_column = data.get('forecast_column')
+        else:  # GET request
+            filename = request.args.get('filename')
+            company_name = request.args.get('company_name')
+            product_name = request.args.get('product_name')
+            forecast_column = request.args.get('forecast_column')
         
         print(f"Received request - Company: {company_name}, Product: {product_name}, Column: {forecast_column}")
         
