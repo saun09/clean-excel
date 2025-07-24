@@ -89,7 +89,7 @@ export default function App() {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <BrowserRouter basename="/clean-excel">
+    <BrowserRouter>
 
       <Routes>
         <Route path="/login" element={<Login setAuthenticated={setAuthenticated} />} />

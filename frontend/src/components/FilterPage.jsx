@@ -109,7 +109,7 @@ const FilterPage = () => {
       setLoading(true);
       setError('');
       
-      const response = await axios.post('http://localhost:5000/api/load-filter-options', {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/load-filter-options`, {
         filename: clusteredFilename
       });
 
@@ -193,7 +193,7 @@ const FilterPage = () => {
 
       console.log('Sending payload:', payload);
       
-      const response = await axios.post('http://localhost:5000/api/filter-data', payload, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/filter-data`, payload, {
         headers: { 'Content-Type': 'application/json' }
       });
 
@@ -238,7 +238,7 @@ const FilterPage = () => {
 
       console.log(' Analyzing with payload:', payload);
 
-      const response = await axios.post('http://localhost:5000/api/analyze-filtered', payload, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/analyze-filtered`, payload, {
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'

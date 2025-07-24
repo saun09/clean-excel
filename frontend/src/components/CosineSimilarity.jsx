@@ -230,7 +230,7 @@ const CosineSimilarity = () => {
 
     try {
       console.log("Running clustering with column:", selectedColumn, "and threshold:", threshold);
-      const response = await axios.post('http://localhost:5000/api/cosine_cluster', {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/cosine_cluster`, {
         filename: cleanedFilename,
         column: selectedColumn,
         threshold: threshold,
@@ -238,8 +238,8 @@ const CosineSimilarity = () => {
 
       console.log('Clustering successful:', response.data);
       setClusteredData(response.data.clustered_preview || []);
-      setDownloadLink(`http://localhost:5000/api/download/${response.data.output_file}`);
-      setExcelDownloadLink(`http://localhost:5000/api/download/${response.data.excel_file}`);
+      setDownloadLink(`${process.env.REACT_APP_BACKEND_URL}/api/download/${response.data.output_file}`);
+      setExcelDownloadLink(`${process.env.REACT_APP_BACKEND_URL}api/download/${response.data.excel_file}`);
       setSuggestions(response.data.replacement_suggestions || []);
       console.log("Suggestions from backend:", response.data.replacement_suggestions);
     } catch (err) {
@@ -251,7 +251,7 @@ const CosineSimilarity = () => {
 
   const handleAcceptSuggestion = async (suggestion) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/apply_replacement', {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/apply_replacement`, {
         filename: cleanedFilename,
         column: selectedColumn,
         targetRow: suggestion.row,

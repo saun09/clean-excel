@@ -1,5 +1,4 @@
 import pandas as pd
-import streamlit as st
 from data_cleaning import safe_numeric_conversion
 import calendar
 from dateutil import parser
@@ -30,7 +29,7 @@ def group_data(df, group_by_columns, aggregation_rules=None):
         grouped_df = df.groupby(group_by_columns).agg(aggregation_rules).reset_index()
         return grouped_df
     except Exception as e:
-        st.error(f"Error during grouping: {str(e)}")
+        print(f"Error during grouping: {str(e)}")
         return df
 
 #-------------------------cluster analysis-------------------

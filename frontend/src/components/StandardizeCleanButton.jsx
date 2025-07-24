@@ -17,14 +17,14 @@ const StandardizeCleanButton = ({ filename, onStatusUpdate, onCleanComplete }) =
 
     try {
       //  Send filename in POST body
-      const response = await axios.post('http://localhost:5000/api/standardize', { filename }, {withCredentials: true});
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/standardize`, { filename }, {withCredentials: true});
 
 
 
       const cleanedFilename = response.data.cleaned_filename;
 
       //  Fetch cleaned file as text
-      const csvResp = await axios.get(`http://localhost:5000/api/download/${cleanedFilename}`);
+      const csvResp = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/download/${cleanedFilename}`);
 
       const rows = csvResp.data.split('\n').map(line => line.split(','));
       const headers = rows[0];
@@ -38,7 +38,7 @@ const StandardizeCleanButton = ({ filename, onStatusUpdate, onCleanComplete }) =
       );
 
       setCleanedData(cleanedDataJson);
-      setDownloadLink(`http://localhost:5000/api/download/${cleanedFilename}`);
+      setDownloadLink(`${process.env.REACT_APP_BACKEND_URL}/api/download/${cleanedFilename}`);
       onStatusUpdate?.('Cleaning complete ');
       onCleanComplete?.(response.data.cleaned_filename);
        setShowPreview(true); 

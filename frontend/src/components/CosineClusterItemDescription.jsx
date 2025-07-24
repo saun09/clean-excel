@@ -63,7 +63,7 @@ const CosineClusterItemDescription = () => {
     console.log("Sending clustering request with payload:", payload);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/cosine_cluster', payload, { 
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/cosine_cluster`, payload, { 
         withCredentials: true,
         headers: {
           'Content-Type': 'application/json'
@@ -74,7 +74,7 @@ const CosineClusterItemDescription = () => {
       
       if (response.data.success) {
         setClusteredData(response.data.clustered_preview || []);
-        setDownloadLink(`http://localhost:5000/api/download/${response.data.output_file}`);
+        setDownloadLink(`${process.env.REACT_APP_BACKEND_URL}/api/download/${response.data.output_file}`);
         setSuggestions(response.data.replacement_suggestions || []);
         
         // Update session storage with the progressive filename for next steps
@@ -123,7 +123,7 @@ const CosineClusterItemDescription = () => {
 
       console.log("Applying suggestion with payload:", payload);
 
-      await axios.post('http://localhost:5000/api/apply_replacement', payload, { 
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/apply_replacement`, payload, { 
         withCredentials: true,
         headers: {
           'Content-Type': 'application/json'

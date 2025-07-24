@@ -46,7 +46,15 @@ app.config.from_object(Config)
 Config.init_app(app)
 print("Config loaded")
 
-CORS(app, supports_credentials=True, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+
+CORS(app, supports_credentials=True, resources={
+    r"/api/*": {
+        "origins": [
+            "http://localhost:3000",  # for local testing
+            "https://clean-excel-og7bgez01-saundarya-s-projects.vercel.app"  # for Vercel
+        ]
+    }
+})
 Session(app)
 
 # Register blueprints

@@ -29,7 +29,7 @@ export default function ClusterResults() {
         {/* Button Actions */}
         <div className="action-buttons">
           <a
-            href={`http://localhost:5000/api/download/${clusteredFilename}`}
+            href={`${process.env.REACT_APP_BACKEND_URL}/api/download/${clusteredFilename}`}
             className="download-btn"
             download
           >
@@ -37,7 +37,7 @@ export default function ClusterResults() {
           </a>
 
           <a
-            href={`http://localhost:5000/api/download/${excelFilename}`}
+            href={`${process.env.REACT_APP_BACKEND_URL}/api/download/${excelFilename}`}
             className="excel-download-btn"
             download
           >

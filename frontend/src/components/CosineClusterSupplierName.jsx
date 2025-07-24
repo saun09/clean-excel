@@ -22,14 +22,14 @@ const CosineClusterSupplierName = () => {
     setSuggestions([]);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/cosine_cluster', {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/cosine_cluster`, {
         filename: cleanedFilename,
         column: selectedColumn,
         threshold
       }, { withCredentials: true });
 
       setClusteredData(response.data.clustered_preview || []);
-      setDownloadLink(`http://localhost:5000/api/download/${response.data.output_file}`);
+      setDownloadLink(`${process.env.REACT_APP_BACKEND_URL}/api/download/${response.data.output_file}`);
       setSuggestions(response.data.replacement_suggestions || []);
       if (response.data.final_filename) {
   sessionStorage.setItem("finalClusteredFilename", response.data.final_filename);
@@ -43,7 +43,7 @@ const CosineClusterSupplierName = () => {
 
   const handleAcceptSuggestion = async (suggestion) => {
     try {
-      await axios.post('http://localhost:5000/api/apply_replacement', {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/apply_replacement`, {
         filename: cleanedFilename,
         column: selectedColumn,
         targetRow: suggestion.row,

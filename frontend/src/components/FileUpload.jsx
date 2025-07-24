@@ -50,7 +50,7 @@ const FileUpload = ({ onUpload = () => {} }) => {
     formData.append('file', fileToUpload);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/upload', formData, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/upload`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       }, {withCredentials: true});
 

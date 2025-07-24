@@ -70,7 +70,7 @@ const ComparativeAnalysis = () => {
       setLoading(true);
       setError('');
       
-      const response = await axios.post('http://localhost:5000/api/load-comparative-options', {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/load-comparative-options`, {
         filename: clusteredFilename
       });
 
@@ -137,7 +137,7 @@ const ComparativeAnalysis = () => {
 
       console.log('Sending comparative analysis payload:', payload);
 
-      const response = await axios.post('http://localhost:5000/api/perform-comparative-analysis', payload, {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/perform-comparative-analysis`, payload, {
         headers: { 
           'Content-Type': 'application/json',
           'Accept': 'application/json'

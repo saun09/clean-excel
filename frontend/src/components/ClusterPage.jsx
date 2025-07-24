@@ -25,7 +25,7 @@ export default function ClusterPage() {
     // Fetch headers of the cleaned file
     if (cleanedName) {
       axios
-        .get(`http://localhost:5000/api/headers/${cleanedName}`)
+        .get(`${process.env.REACT_APP_BACKEND_URL}/api/headers/${cleanedName}`)
         .then((res) => setColumns(res.data.headers))
         .catch(() => setColumns([]));
     }
@@ -41,7 +41,7 @@ const handleCluster = async () => {
   filename: sessionStorage.getItem("df_cleaned"),
 });
 
-    const res = await axios.post('http://localhost:5000/api/cluster', {
+    const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/cluster`, {
       filename: cleanedName,
       column: column,
     });
@@ -55,7 +55,7 @@ const handleCluster = async () => {
 
      
 
-    const excelRes = await axios.post('http://localhost:5000/api/export-colored-excel', {
+    const excelRes = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/export-colored-excel`, {
       filename: clustered_filename,
       cluster_column: column,
       
@@ -163,14 +163,14 @@ const handleCluster = async () => {
             ))}
           </tbody>
         </table>
-        <a href={`http://localhost:5000/api/download/${clusteredFile}`} download>
+        <a href={`${process.env.REACT_APP_BACKEND_URL}/api/download/${clusteredFile}`} download>
           ⬇ Download Clustered CSV
         </a>
         {excelReady && (
           <div className="excel-notification">
             <p>Color-coded Excel is ready!</p>
             <a
-              href={`http://localhost:5000/api/download/${excelFile}`}
+              href={`${process.env.REACT_APP_BACKEND_URL}/api/download/${excelFile}`}
               download
               className="excel-download-btn"
             >

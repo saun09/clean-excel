@@ -9,7 +9,7 @@ const MainLayout = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/logout", {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/logout`, {
         method: "POST",
         credentials: "include",
       });
