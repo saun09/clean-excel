@@ -51,57 +51,30 @@ app.config.from_object(Config)
 Config.init_app(app)
 print("Config loaded")
 
-# CORS configuration - FIXED VERSION
+# Dynamic CORS configuration for Vercel deployments
+def cors_origin_handler(origin):
+    allowed_origins = [
+        "http://localhost:3000",
+        "https://clean-excel.vercel.app"
+    ]
+    
+    # Allow any vercel.app subdomain
+    if origin and origin.endswith(".vercel.app"):
+        return True
+    
+    return origin in allowed_origins
+
 CORS(app, 
      supports_credentials=True,
-     origins=["http://localhost:3000", "https://clean-excel.vercel.app"],
+     origins=cors_origin_handler,
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-     allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
-     expose_headers=["Content-Type", "Authorization"])
-
-# Add these CORS handlers
-@app.before_request
-def handle_preflight():
-    if request.method == "OPTIONS":
-        response = jsonify()
-        origin = request.headers.get('Origin')
-        
-        # Allow specific origins or any vercel.app subdomain
-        if origin and (origin in ["http://localhost:3000", "https://clean-excel.vercel.app"] or 
-                      origin.endswith(".vercel.app")):
-            response.headers.add("Access-Control-Allow-Origin", origin)
-        else:
-            response.headers.add("Access-Control-Allow-Origin", "https://clean-excel.vercel.app")
-            
-        response.headers.add('Access-Control-Allow-Headers', "Content-Type,Authorization,Accept,Origin,X-Requested-With")
-        response.headers.add('Access-Control-Allow-Methods', "GET,PUT,POST,DELETE,OPTIONS")
-        response.headers.add('Access-Control-Allow-Credentials', 'true')
-        return response
-
-@app.after_request
-def after_request(response):
-    origin = request.headers.get('Origin')
-    
-    # Set specific origin if it's in our allowed list
-    if origin and (origin in ["http://localhost:3000", "https://clean-excel.vercel.app"] or 
-                  origin.endswith(".vercel.app")):
-        response.headers.add('Access-Control-Allow-Origin', origin)
-    else:
-        # Fallback for any other requests
-        response.headers.add('Access-Control-Allow-Origin', 'https://clean-excel.vercel.app')
-        
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,Accept,Origin,X-Requested-With')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-    response.headers.add('Access-Control-Allow-Credentials', 'true')
-    return response
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"])
 
 Session(app)
 
 # Add a test endpoint to verify CORS is working
 @app.route('/api/test-cors', methods=['GET', 'POST', 'OPTIONS'])
 def test_cors():
-    if request.method == 'OPTIONS':
-        return '', 200
     return jsonify({
         "message": "CORS is working!", 
         "origin": request.headers.get('Origin'),
