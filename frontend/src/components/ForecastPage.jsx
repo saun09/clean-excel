@@ -146,7 +146,7 @@ const ForecastPage = () => {
 
       console.log("Sending forecast request with:", requestData);
 
-      const response = await fetch('/api/generate-forecast', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/generate-forecast`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
