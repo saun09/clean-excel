@@ -41,6 +41,7 @@ app = Flask(__name__)
 load_dotenv()  # Load from .env
 
 app.secret_key = os.getenv('FLASK_SECRET', 'fallbacksecret')  # needed for sessions
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
 
 app.config.from_object(Config)
 Config.init_app(app)
