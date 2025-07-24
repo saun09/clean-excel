@@ -68,14 +68,11 @@ def is_allowed_origin(origin):
 
 # CORS configuration with dynamic origin checking
 CORS(app, 
-     supports_credentials=True, 
-     origins=is_allowed_origin,
-     resources={
-         r"/api/*": {
-             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-             "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"]
-         }
-     })
+     supports_credentials=True,
+     origins="*",  # Allow all origins temporarily
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Access-Control-Allow-Origin"])
+
 
 Session(app)
 
