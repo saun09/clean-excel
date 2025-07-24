@@ -66,9 +66,14 @@ def cors_origin_handler(origin):
 
 CORS(app, 
      supports_credentials=True,
-     origins=cors_origin_handler,
+     origins=[
+         "http://localhost:3000",
+         "https://clean-excel.vercel.app"
+     ],
      methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-     allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"])
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"]
+)
+
 
 Session(app)
 
