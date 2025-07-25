@@ -161,157 +161,289 @@ def filter_trade_data(df, trade_type_col, country_col, supplier_col,
 
     print(f"Filtered data shape: {df.shape}")
     return df
+import re
+import numpy as np
+import pandas as pd
 
-# *//// CHANGE: Updated function signature to accept item_description_col parameter
-def perform_trade_analysis(df, product_col, quantity_col, value_col, importer_col, supplier_col, item_description_col=None):
+from data_cleaning import safe_numeric_conversion
+
+def perform_trade_analysis(
+    df,
+    product_col,                 # keep your original signature
+    quantity_col,
+    value_col,
+    importer_col,
+    supplier_col,
+    item_description_col=None
+):
     results = {}
 
-    try:
-        # *//// CHANGE: Define columns to include in groupby operations
-        base_groupby_cols = [importer_col, supplier_col]
-        if item_description_col and item_description_col in df.columns:
-            base_groupby_cols.append(item_description_col)
+    # -------------// AUTO-DETECT HELPERS
+    def _col_contains(col, kws):
+        c = str(col).lower()
+        return any(k in c for k in kws)
 
+    # -------------// Heuristic detection of value / quantity / unit-price columns
+    def detect_columns(df, value_col, quantity_col):
+        numeric_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
+        lower_cols = {c.lower(): c for c in df.columns}
+
+        # If provided, trust user but still coerce numeric
+        vc = value_col if value_col in df.columns else None
+        qc = quantity_col if quantity_col in df.columns else None
+
+        unit_price_candidates = []
+        total_value_candidates = []
+        quantity_candidates = []
+
+        for c in numeric_cols:
+            cl = c.lower()
+            if _col_contains(c, ["unit", "rate", "price", "per unit"]):
+                unit_price_candidates.append(c)
+            if _col_contains(c, ["qty", "quantity", "mt", "mts", "kg", "kgs", "ton", "tons"]):
+                quantity_candidates.append(c)
+            if _col_contains(c, ["fob", "cif", "assess", "invoice", "value", "val", "amount", "total"]):
+                # Avoid misclassifying unit price as value
+                if not _col_contains(c, ["unit", "rate", "price"]):
+                    total_value_candidates.append(c)
+
+        # If not provided, choose best guess
+        if qc is None:
+            # prefer an explicitly named quantity column
+            if quantity_candidates:
+                qc = quantity_candidates[0]
+            else:
+                # fall back to the smallest-magnitude numeric column as a guess
+                qc = min(numeric_cols, key=lambda c: df[c].abs().median()) if numeric_cols else None
+
+        if vc is None:
+            # prefer explicit total value candidates
+            if total_value_candidates:
+                # choose the one with the largest median as it's likely total value
+                vc = max(total_value_candidates, key=lambda c: df[c].abs().median())
+            else:
+                # fallback: pick the largest magnitude numeric col as value
+                vc = max(numeric_cols, key=lambda c: df[c].abs().median()) if numeric_cols else None
+
+        # Also track if there's a unit price column
+        up = unit_price_candidates[0] if unit_price_candidates else None
+
+        return vc, qc, up
+    # -------------// END AUTO-DETECT HELPERS
+
+    try:
+        # -------------// RUN DETECTION
+        detected_value_col, detected_quantity_col, detected_unit_price_col = detect_columns(df, value_col, quantity_col)
+
+        # -------------// LOG (optional)
+        # print(f"[detect] value_col={detected_value_col}, quantity_col={detected_quantity_col}, unit_price_col={detected_unit_price_col}")
+
+        # -------------// Coerce to numeric safely
+        if detected_value_col:
+            df[detected_value_col] = safe_numeric_conversion(df[detected_value_col])
+        if detected_quantity_col:
+            df[detected_quantity_col] = safe_numeric_conversion(df[detected_quantity_col])
+        if detected_unit_price_col:
+            df[detected_unit_price_col] = safe_numeric_conversion(df[detected_unit_price_col])
+
+        # -------------// If what we think is value_col is actually a unit price column, rebuild total value
+        # Heuristic: if we have unit_price AND quantity, and value ~= unit_price * quantity (within tolerance),
+        # then the detected_value_col is actually a total value. Otherwise, if detected_value_col name suggests unit price, rebuild.
+        def is_unit_price_like(col):
+            return col is not None and _col_contains(col, ["unit", "rate", "price"])
+
+        if detected_value_col is None and detected_unit_price_col and detected_quantity_col:
+            # no value col, but we have unit price & qty -> synthesize
+            df["_Total_Value_Synth"] = df[detected_unit_price_col] * df[detected_quantity_col]
+            detected_value_col = "_Total_Value_Synth"
+        elif is_unit_price_like(detected_value_col) and detected_quantity_col:
+            # value col is actually a unit price -> synthesize true total
+            df["_Total_Value_Synth"] = df[detected_value_col] * df[detected_quantity_col]
+            detected_value_col = "_Total_Value_Synth"
+
+        # guard rails
+        if detected_value_col is None or detected_quantity_col is None:
+            results["error"] = (
+                f"Could not reliably detect value/quantity columns. "
+                f"Detected value: {detected_value_col}, quantity: {detected_quantity_col}"
+            )
+            return results
+
+        # ORIGINAL ANALYSIS (uses detected_* now)
+        # ----------------------------------------------------------
         # 1. Which importer is importing the most from a particular supplier for the selected product?
-        # *//// CHANGE: Include item_description_col in groupby
         groupby_cols_1 = [importer_col, supplier_col]
         if item_description_col and item_description_col in df.columns:
             groupby_cols_1.append(item_description_col)
-        
-        most_importing = df.groupby(groupby_cols_1)[value_col].sum().reset_index()
-        most_importing = most_importing.sort_values(by=value_col, ascending=False).head(10)
+
+        most_importing = (
+            df.groupby(groupby_cols_1)[detected_value_col]
+            .sum()
+            .reset_index()
+            .sort_values(by=detected_value_col, ascending=False)
+            .head(10)
+        )
         results["1. Top Importer-Supplier Combinations"] = most_importing.to_dict(orient="records")
 
-        # 2. What are the top countries exporting for a given product?
-        # *//// CHANGE: Include item_description_col in groupby if available
+        # 2. Top exporting countries for a given product
         groupby_cols_2 = [supplier_col]
         if item_description_col and item_description_col in df.columns:
             groupby_cols_2.append(item_description_col)
-        
-        top_exporting = df.groupby(groupby_cols_2)[value_col].sum().reset_index()
-        top_exporting = top_exporting.sort_values(by=value_col, ascending=False).head(10)
+
+        top_exporting = (
+            df.groupby(groupby_cols_2)[detected_value_col]
+            .sum()
+            .reset_index()
+            .sort_values(by=detected_value_col, ascending=False)
+            .head(10)
+        )
         results["2. Top Exporting Countries"] = top_exporting.to_dict(orient="records")
 
-        # 3. What are the top importing cities/states for a given product from a supplier country?
-        # *//// CHANGE: Include item_description_col in groupby
+        # 3. Top importing cities/states by supplier
         groupby_cols_3 = [importer_col, supplier_col]
         if item_description_col and item_description_col in df.columns:
             groupby_cols_3.append(item_description_col)
-        
-        top_importing_cities = df.groupby(groupby_cols_3)[value_col].sum().reset_index()
-        top_importing_cities = top_importing_cities.sort_values(by=value_col, ascending=False).head(10)
+
+        top_importing_cities = (
+            df.groupby(groupby_cols_3)[detected_value_col]
+            .sum()
+            .reset_index()
+            .sort_values(by=detected_value_col, ascending=False)
+            .head(10)
+        )
         results["3. Top Importing Cities/States by Supplier"] = top_importing_cities.to_dict(orient="records")
 
-        # 4. Is there any country that dominates in export of selected product?
+        # 4. Country dominance
         dominant_export = top_exporting.copy()
-        total_export = dominant_export[value_col].sum()
-        dominant_export["% Share"] = (dominant_export[value_col] / total_export) * 100
+        total_export = dominant_export[detected_value_col].sum()
+        dominant_export["% Share"] = (dominant_export[detected_value_col] / total_export) * 100 if total_export else 0
         results["4. Export Dominance Share"] = dominant_export.to_dict(orient="records")
 
-        # 5. Which supplier country is sending the highest value of the product to particular importer?
-        # *//// CHANGE: Include item_description_col in groupby
+        # 5. Highest supplier to importer values
         groupby_cols_5 = [supplier_col, importer_col]
         if item_description_col and item_description_col in df.columns:
             groupby_cols_5.append(item_description_col)
-        
-        top_supplier_to_importer = df.groupby(groupby_cols_5)[value_col].sum().reset_index()
-        top_supplier_to_importer = top_supplier_to_importer.sort_values(by=value_col, ascending=False).head(10)
+
+        top_supplier_to_importer = (
+            df.groupby(groupby_cols_5)[detected_value_col]
+            .sum()
+            .reset_index()
+            .sort_values(by=detected_value_col, ascending=False)
+            .head(10)
+        )
         results["5. Highest Supplier to Importer Values"] = top_supplier_to_importer.to_dict(orient="records")
 
-        # 6. Has the trade value increased or decreased over time?
+        # 6. Trend over time (YEAR or Month -> year)
         time_col = None
         if "YEAR" in df.columns:
             time_col = "YEAR"
         elif "Month" in df.columns:
             try:
-                df["year_temp"] = pd.to_datetime(df["Month"], errors="coerce").dt.year
-                time_col = "year_temp"
-            except:
+                df["__year_tmp"] = pd.to_datetime(df["Month"], errors="coerce").dt.year
+                time_col = "__year_tmp"
+            except Exception:
                 pass
 
         if time_col and df[time_col].notna().any():
-            # *//// CHANGE: Include item_description_col in time trend groupby if available
-            groupby_cols_time = [time_col]
-            if item_description_col and item_description_col in df.columns:
-                # For time analysis, we might want to aggregate across all items or keep item breakdown
-                # Let's keep it simple and aggregate across all items for trend
-                pass
-            
-            trend_df = df.groupby(time_col)[value_col].sum().reset_index()
-            trend_df = trend_df.sort_values(by=time_col)
-            trend_df["Change"] = trend_df[value_col].diff()
-            trend_df["% Change"] = trend_df[value_col].pct_change() * 100
+            trend_df = (
+                df.groupby(time_col)[detected_value_col]
+                .sum()
+                .reset_index()
+                .sort_values(by=time_col)
+            )
+            trend_df["Change"] = trend_df[detected_value_col].diff()
+            trend_df["% Change"] = trend_df[detected_value_col].pct_change() * 100
             results["6. Trade Value Trend Over Time"] = trend_df.to_dict(orient="records")
-            
-            # Add trend analysis summary
+
             if len(trend_df) >= 2:
                 first_year = trend_df.iloc[0]
                 last_year = trend_df.iloc[-1]
-                total_change = last_year[value_col] - first_year[value_col]
-                percent_change = ((last_year[value_col] - first_year[value_col]) / first_year[value_col]) * 100 if first_year[value_col] != 0 else 0
-                
-                trend_direction = "increased" if total_change > 0 else "decreased" if total_change < 0 else "remained stable"
-                results["Trend Analysis"] = f"From {int(first_year[time_col])} to {int(last_year[time_col])}, trade value has {trend_direction} by {percent_change:.1f}% (from {first_year[value_col]:,.0f} to {last_year[value_col]:,.0f})"
+                total_change = last_year[detected_value_col] - first_year[detected_value_col]
+                percent_change = (
+                    (total_change / first_year[detected_value_col]) * 100
+                    if first_year[detected_value_col] != 0 else 0
+                )
+                direction = "increased" if total_change > 0 else "decreased" if total_change < 0 else "remained stable"
+                results["Trend Analysis"] = (
+                    f"From {int(first_year[time_col])} to {int(last_year[time_col])}, "
+                    f"trade value has {direction} by {percent_change:.1f}% "
+                    f"(from {first_year[detected_value_col]:,.0f} to {last_year[detected_value_col]:,.0f})"
+                )
 
-        # 7. Which supplier country is giving the lowest/highest average value per unit?
-        if quantity_col and quantity_col in df.columns:
-            # Clean quantity data - remove zeros and negatives
-            df_clean = df[df[quantity_col] > 0].copy()
-            df_clean["Unit_Value"] = df_clean[value_col] / df_clean[quantity_col]
-            
-            if not df_clean.empty:
-                # *//// CHANGE: Include item_description_col in unit value groupby
-                groupby_cols_unit = [supplier_col, importer_col]
-                if item_description_col and item_description_col in df.columns:
-                    groupby_cols_unit.append(item_description_col)
-                
-                avg_unit_value = df_clean.groupby(groupby_cols_unit)["Unit_Value"].mean().reset_index()
-                avg_unit_value = avg_unit_value[avg_unit_value["Unit_Value"].notna()]
-                
-                if not avg_unit_value.empty:
-                    highest_avg = avg_unit_value.sort_values(by="Unit_Value", ascending=False).head(5)
-                    lowest_avg = avg_unit_value.sort_values(by="Unit_Value", ascending=True).head(5)
-                    results["7A. Highest Avg Value per Unit"] = highest_avg.to_dict(orient="records")
-                    results["7B. Lowest Avg Value per Unit"] = lowest_avg.to_dict(orient="records")
+        # 7. Highest / Lowest Avg Value per Unit
+        if detected_quantity_col in df.columns:
+            df_clean = df[df[detected_quantity_col] > 0].copy()
+            df_clean["Unit_Value"] = df_clean[detected_value_col] / df_clean[detected_quantity_col]  # -------------//
+            groupby_cols_unit = [supplier_col, importer_col]
+            if item_description_col and item_description_col in df.columns:
+                groupby_cols_unit.append(item_description_col)
 
-        # 8. Heatmap: Importer/supplier pairs with highest trade value
-        # *//// CHANGE: Include item_description_col in heatmap groupby
+            avg_unit_value = (
+                df_clean.groupby(groupby_cols_unit)["Unit_Value"]
+                .mean()
+                .reset_index()
+                .dropna(subset=["Unit_Value"])
+            )
+
+            if not avg_unit_value.empty:
+                results["7A. Highest Avg Value per Unit"] = (
+                    avg_unit_value.sort_values(by="Unit_Value", ascending=False).head(5).to_dict(orient="records")
+                )
+                results["7B. Lowest Avg Value per Unit"] = (
+                    avg_unit_value.sort_values(by="Unit_Value", ascending=True).head(5).to_dict(orient="records")
+                )
+
+        # 8. Heatmap data
         groupby_cols_heatmap = [importer_col, supplier_col]
         if item_description_col and item_description_col in df.columns:
             groupby_cols_heatmap.append(item_description_col)
-        
-        heatmap_data = df.groupby(groupby_cols_heatmap)[value_col].sum().reset_index()
-        
-        # Limit to top importers and suppliers to make heatmap manageable
-        top_importers = df.groupby(importer_col)[value_col].sum().nlargest(10).index
-        top_suppliers = df.groupby(supplier_col)[value_col].sum().nlargest(10).index
-        
+
+        heatmap_data = (
+            df.groupby(groupby_cols_heatmap)[detected_value_col]
+            .sum()
+            .reset_index()
+        )
+
+        top_importers = (
+            df.groupby(importer_col)[detected_value_col]
+            .sum()
+            .nlargest(10)
+            .index
+        )
+        top_suppliers = (
+            df.groupby(supplier_col)[detected_value_col]
+            .sum()
+            .nlargest(10)
+            .index
+        )
+
         heatmap_filtered = heatmap_data[
-            (heatmap_data[importer_col].isin(top_importers)) & 
+            (heatmap_data[importer_col].isin(top_importers)) &
             (heatmap_data[supplier_col].isin(top_suppliers))
         ]
-        
+
         if not heatmap_filtered.empty:
-            # *//// CHANGE: For heatmap, if we have item descriptions, we might want to aggregate them
-            # or create a more complex pivot. For now, let's aggregate by importer-supplier pairs
             if item_description_col and item_description_col in df.columns:
-                # Aggregate item descriptions for heatmap (sum values across items)
-                heatmap_for_pivot = heatmap_filtered.groupby([importer_col, supplier_col])[value_col].sum().reset_index()
+                heatmap_for_pivot = (
+                    heatmap_filtered.groupby([importer_col, supplier_col])[detected_value_col]
+                    .sum()
+                    .reset_index()
+                )
             else:
                 heatmap_for_pivot = heatmap_filtered
-            
-            heatmap_pivot = heatmap_for_pivot.pivot(
-                index=importer_col, 
-                columns=supplier_col, 
-                values=value_col
-            ).fillna(0)
-            results["8. Importer-Supplier Heatmap Data"] = heatmap_pivot.reset_index().to_dict(orient="records")
+
+            heatmap_pivot = (
+                heatmap_for_pivot.pivot(index=importer_col, columns=supplier_col, values=detected_value_col)
+                .fillna(0)
+                .reset_index()
+            )
+            results["8. Importer-Supplier Heatmap Data"] = heatmap_pivot.to_dict(orient="records")
 
     except Exception as e:
         results["error"] = f"Trade analysis failed: {str(e)}"
-        print(f"Analysis error: {str(e)}")
 
     return results
+
 
 def analyze_trend(df, trade_type, product_name, selected_years):
     """
