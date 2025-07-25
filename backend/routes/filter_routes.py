@@ -232,7 +232,8 @@ def analyze_filtered_data():
             quantity_col=quantity_col,
             value_col=value_col,
             importer_col=importer_col,
-            supplier_col=supplier_col
+            supplier_col=supplier_col,
+             item_description_col='Item_Description'
         )
 
         # Clean NaN values

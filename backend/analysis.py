@@ -162,22 +162,43 @@ def filter_trade_data(df, trade_type_col, country_col, supplier_col,
     print(f"Filtered data shape: {df.shape}")
     return df
 
-def perform_trade_analysis(df, product_col, quantity_col, value_col, importer_col, supplier_col):
+# *//// CHANGE: Updated function signature to accept item_description_col parameter
+def perform_trade_analysis(df, product_col, quantity_col, value_col, importer_col, supplier_col, item_description_col=None):
     results = {}
 
     try:
+        # *//// CHANGE: Define columns to include in groupby operations
+        base_groupby_cols = [importer_col, supplier_col]
+        if item_description_col and item_description_col in df.columns:
+            base_groupby_cols.append(item_description_col)
+
         # 1. Which importer is importing the most from a particular supplier for the selected product?
-        most_importing = df.groupby([importer_col, supplier_col])[value_col].sum().reset_index()
+        # *//// CHANGE: Include item_description_col in groupby
+        groupby_cols_1 = [importer_col, supplier_col]
+        if item_description_col and item_description_col in df.columns:
+            groupby_cols_1.append(item_description_col)
+        
+        most_importing = df.groupby(groupby_cols_1)[value_col].sum().reset_index()
         most_importing = most_importing.sort_values(by=value_col, ascending=False).head(10)
         results["1. Top Importer-Supplier Combinations"] = most_importing.to_dict(orient="records")
 
         # 2. What are the top countries exporting for a given product?
-        top_exporting = df.groupby(supplier_col)[value_col].sum().reset_index()
+        # *//// CHANGE: Include item_description_col in groupby if available
+        groupby_cols_2 = [supplier_col]
+        if item_description_col and item_description_col in df.columns:
+            groupby_cols_2.append(item_description_col)
+        
+        top_exporting = df.groupby(groupby_cols_2)[value_col].sum().reset_index()
         top_exporting = top_exporting.sort_values(by=value_col, ascending=False).head(10)
         results["2. Top Exporting Countries"] = top_exporting.to_dict(orient="records")
 
         # 3. What are the top importing cities/states for a given product from a supplier country?
-        top_importing_cities = df.groupby([importer_col, supplier_col])[value_col].sum().reset_index()
+        # *//// CHANGE: Include item_description_col in groupby
+        groupby_cols_3 = [importer_col, supplier_col]
+        if item_description_col and item_description_col in df.columns:
+            groupby_cols_3.append(item_description_col)
+        
+        top_importing_cities = df.groupby(groupby_cols_3)[value_col].sum().reset_index()
         top_importing_cities = top_importing_cities.sort_values(by=value_col, ascending=False).head(10)
         results["3. Top Importing Cities/States by Supplier"] = top_importing_cities.to_dict(orient="records")
 
@@ -188,7 +209,12 @@ def perform_trade_analysis(df, product_col, quantity_col, value_col, importer_co
         results["4. Export Dominance Share"] = dominant_export.to_dict(orient="records")
 
         # 5. Which supplier country is sending the highest value of the product to particular importer?
-        top_supplier_to_importer = df.groupby([supplier_col, importer_col])[value_col].sum().reset_index()
+        # *//// CHANGE: Include item_description_col in groupby
+        groupby_cols_5 = [supplier_col, importer_col]
+        if item_description_col and item_description_col in df.columns:
+            groupby_cols_5.append(item_description_col)
+        
+        top_supplier_to_importer = df.groupby(groupby_cols_5)[value_col].sum().reset_index()
         top_supplier_to_importer = top_supplier_to_importer.sort_values(by=value_col, ascending=False).head(10)
         results["5. Highest Supplier to Importer Values"] = top_supplier_to_importer.to_dict(orient="records")
 
@@ -204,6 +230,13 @@ def perform_trade_analysis(df, product_col, quantity_col, value_col, importer_co
                 pass
 
         if time_col and df[time_col].notna().any():
+            # *//// CHANGE: Include item_description_col in time trend groupby if available
+            groupby_cols_time = [time_col]
+            if item_description_col and item_description_col in df.columns:
+                # For time analysis, we might want to aggregate across all items or keep item breakdown
+                # Let's keep it simple and aggregate across all items for trend
+                pass
+            
             trend_df = df.groupby(time_col)[value_col].sum().reset_index()
             trend_df = trend_df.sort_values(by=time_col)
             trend_df["Change"] = trend_df[value_col].diff()
@@ -227,7 +260,12 @@ def perform_trade_analysis(df, product_col, quantity_col, value_col, importer_co
             df_clean["Unit_Value"] = df_clean[value_col] / df_clean[quantity_col]
             
             if not df_clean.empty:
-                avg_unit_value = df_clean.groupby([supplier_col, importer_col])["Unit_Value"].mean().reset_index()
+                # *//// CHANGE: Include item_description_col in unit value groupby
+                groupby_cols_unit = [supplier_col, importer_col]
+                if item_description_col and item_description_col in df.columns:
+                    groupby_cols_unit.append(item_description_col)
+                
+                avg_unit_value = df_clean.groupby(groupby_cols_unit)["Unit_Value"].mean().reset_index()
                 avg_unit_value = avg_unit_value[avg_unit_value["Unit_Value"].notna()]
                 
                 if not avg_unit_value.empty:
@@ -237,7 +275,12 @@ def perform_trade_analysis(df, product_col, quantity_col, value_col, importer_co
                     results["7B. Lowest Avg Value per Unit"] = lowest_avg.to_dict(orient="records")
 
         # 8. Heatmap: Importer/supplier pairs with highest trade value
-        heatmap_data = df.groupby([importer_col, supplier_col])[value_col].sum().reset_index()
+        # *//// CHANGE: Include item_description_col in heatmap groupby
+        groupby_cols_heatmap = [importer_col, supplier_col]
+        if item_description_col and item_description_col in df.columns:
+            groupby_cols_heatmap.append(item_description_col)
+        
+        heatmap_data = df.groupby(groupby_cols_heatmap)[value_col].sum().reset_index()
         
         # Limit to top importers and suppliers to make heatmap manageable
         top_importers = df.groupby(importer_col)[value_col].sum().nlargest(10).index
@@ -249,7 +292,15 @@ def perform_trade_analysis(df, product_col, quantity_col, value_col, importer_co
         ]
         
         if not heatmap_filtered.empty:
-            heatmap_pivot = heatmap_filtered.pivot(
+            # *//// CHANGE: For heatmap, if we have item descriptions, we might want to aggregate them
+            # or create a more complex pivot. For now, let's aggregate by importer-supplier pairs
+            if item_description_col and item_description_col in df.columns:
+                # Aggregate item descriptions for heatmap (sum values across items)
+                heatmap_for_pivot = heatmap_filtered.groupby([importer_col, supplier_col])[value_col].sum().reset_index()
+            else:
+                heatmap_for_pivot = heatmap_filtered
+            
+            heatmap_pivot = heatmap_for_pivot.pivot(
                 index=importer_col, 
                 columns=supplier_col, 
                 values=value_col

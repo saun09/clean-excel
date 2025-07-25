@@ -312,6 +312,9 @@ const FilterPage = () => {
       } else if (key.includes('Change')) {
         header = 'Change (%)';
       }
+      else if (key === 'Item_Description' || key.includes('Item_Description')) {
+        header = 'Item Description';
+      }
 
       columns.push({ Header: header, accessor });
     });
